@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=390, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>TOEIC — Grammar Demon Battle</title>
 <link rel="stylesheet" href="/static/monster-sprites.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rpg-awesome@latest/css/rpg-awesome.min.css">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -13,27 +13,27 @@
    DESIGN TOKENS — single source of truth
    ═══════════════════════════════════════════════════════════════ */
 :root {
-  /* Palette — Cyberpunk dark */
-  --c-bg:        #060810;
-  --c-surface:   #0c0e18;
-  --c-card:      #111428;
-  --c-border:    rgba(0,240,255,.12);
-  --c-cyan:      #00f0ff;
-  --c-cyan-dim:  rgba(0,240,255,.6);
-  --c-magenta:   #ff2a6d;
-  --c-magenta-dim: rgba(255,42,109,.6);
-  --c-yellow:    #fbbf24;
-  --c-yellow-dim: rgba(251,191,36,.6);
-  --c-green:     #05ffa1;
-  --c-green-dim: rgba(5,255,161,.6);
-  --c-text:      #dde4f0;
-  --c-muted:     #5a6a8a;
+  /* Palette — YOKAI LIGHT — warm parchment + crimson + gold */
+  --c-bg:        #faf7f2;
+  --c-surface:   #f0ebe3;
+  --c-card:      #ffffff;
+  --c-border:    rgba(180,60,60,.14);
+  --c-red:       #c0392b;
+  --c-red-dim:   rgba(192,57,43,.65);
+  --c-gold:      #d4a017;
+  --c-gold-dim:  rgba(212,160,23,.65);
+  --c-teal:      #16a085;
+  --c-teal-dim:  rgba(22,160,133,.65);
+  --c-green:      #27ae60;
+  --c-green-dim: rgba(39,174,96,.65);
+  --c-text:      #2c1810;
+  --c-muted:     #7a6655;
 
   /* Glow variants */
-  --glow-cyan:    0 0 8px rgba(0,240,255,.5), 0 0 20px rgba(0,240,255,.2);
-  --glow-magenta: 0 0 8px rgba(255,42,109,.5), 0 0 20px rgba(255,42,109,.2);
-  --glow-yellow:  0 0 8px rgba(251,191,36,.5), 0 0 20px rgba(251,191,36,.2);
-  --glow-green:   0 0 8px rgba(5,255,161,.5), 0 0 20px rgba(5,255,161,.2);
+  --glow-cyan:    0 0 8px rgba(22,160,133,.45), 0 0 20px rgba(22,160,133,.18);
+  --glow-red:     0 0 8px rgba(192,57,43,.5), 0 0 20px rgba(192,57,43,.2);
+  --glow-yellow:  0 0 8px rgba(212,160,23,.5), 0 0 20px rgba(212,160,23,.2);
+  --glow-green:   0 0 8px rgba(39,174,96,.5), 0 0 20px rgba(39,174,96,.2);
 
   /* Typography */
   --f-body:    'Exo 2', 'Rajdhani', system-ui, sans-serif;
@@ -75,7 +75,8 @@ body {
   overflow-x: hidden;
   background: var(--c-bg);
   background-image:
-    repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,.012) 2px,rgba(0,240,255,.012) 4px);
+    repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(212,160,23,.025) 40px,rgba(212,160,23,.025) 41px),
+    repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(212,160,23,.025) 40px,rgba(212,160,23,.025) 41px);
   font-family: var(--f-body);
   color: var(--c-text);
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
@@ -113,7 +114,7 @@ body {
   background: transparent;
   transition: background 80ms ease-out;
 }
-#screenFlash.active  { background: rgba(255,42,109,.18); }
+#screenFlash.active  { background: rgba(192,57,43,.2); }
 #screenFlash.white   { background: rgba(0,240,255,.28); }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -135,8 +136,8 @@ body {
   display: flex; align-items: center; gap: 4px;
 }
 .hud-streak { font-size: .7rem; font-weight: 600; opacity: .5; }
-.hud-streak.s2 { color: var(--c-yellow-dim); opacity: 1; }
-.hud-streak.s3 { color: var(--c-magenta); opacity: 1; }
+.hud-streak.s2 { color: var(--c-gold-dim); opacity: 1; }
+.hud-streak.s3 { color: var(--c-red); opacity: 1; }
 
 /* Quest progress bar */
 .q-progress { width: 100%; }
@@ -147,7 +148,7 @@ body {
 }
 .q-progress-fill {
   height: 100%; width: 0%;
-  background: linear-gradient(90deg, var(--c-cyan-dim), var(--c-cyan));
+  background: linear-gradient(90deg, var(--c-teal-dim), var(--c-teal));
   box-shadow: inset 0 0 8px rgba(0,240,255,.3);
   transition: width .5s var(--ease-cyber);
   border-radius: 99px;
@@ -163,13 +164,13 @@ body {
 .q-header {
   font-family: var(--f-display);
   font-size: .58rem; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--c-cyan); margin-bottom: var(--sp-2);
+  color: var(--c-teal); margin-bottom: var(--sp-2);
 }
 .q-stem {
   font-size: .82rem; line-height: 1.75; margin-bottom: var(--sp-3);
   color: var(--c-text);
 }
-.q-stem b { color: var(--c-cyan); }
+.q-stem b { color: var(--c-teal); }
 
 .opts { display: grid; gap: var(--sp-1); }
 .opt {
@@ -185,7 +186,7 @@ body {
   word-break: break-word;
 }
 .opt:hover:not(:disabled) {
-  border-color: var(--c-cyan); background: rgba(0,240,255,.05);
+  border-color: var(--c-teal); background: rgba(22,160,133,.06);
   transform: translateX(4px);
   box-shadow: var(--glow-cyan);
 }
@@ -194,22 +195,22 @@ body {
   background: var(--c-card); padding: 2px 8px;
   font-size: .62rem; font-weight: 700;
   min-width: 22px; text-align: center;
-  color: var(--c-cyan); font-family: var(--f-mono);
+  color: var(--c-teal); font-family: var(--f-mono);
   border-radius: 3px; flex-shrink: 0;
 }
 .opt.correct {
   border-color: var(--c-green); color: var(--c-green);
-  background: rgba(5,255,161,.07);
+  background: rgba(39,174,96,.08);
   box-shadow: var(--glow-green);
 }
 .opt.correct .opt-key { background: var(--c-green); color: #000; }
 .opt.wrong {
-  border-color: var(--c-magenta); color: var(--c-magenta);
-  background: rgba(255,42,109,.07);
-  box-shadow: var(--glow-magenta);
+  border-color: var(--c-red); color: var(--c-red);
+  background: rgba(192,57,43,.08);
+  box-shadow: var(--glow-red);
   animation: optShake .4s ease;
 }
-.opt.wrong .opt-key { background: var(--c-magenta); color: #000; }
+.opt.wrong .opt-key { background: var(--c-red); color: #000; }
 @keyframes optShake {
   0%,100%{transform:translateX(0)}
   20%{transform:translateX(-4px)} 40%{transform:translateX(4px)}
@@ -219,13 +220,13 @@ body {
 .passive-explain {
   display: none; margin-top: var(--sp-3);
   padding: var(--sp-3);
-  background: rgba(0,240,255,.03);
-  border-left: 3px solid var(--c-cyan);
+  background: rgba(22,160,133,.04);
+  border-left: 3px solid var(--c-teal);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
   font-size: .73rem; line-height: 1.65; color: var(--c-muted);
 }
 .passive-explain h4 {
-  color: var(--c-cyan); font-size: .62rem;
+  color: var(--c-teal); font-size: .62rem;
   margin-bottom: var(--sp-1); text-transform: uppercase; letter-spacing: 1px;
   font-family: var(--f-display);
 }
@@ -234,9 +235,9 @@ body {
   display: none; width: 100%; margin-top: var(--sp-3);
   padding: var(--sp-3);
   background: transparent;
-  border: 1px solid var(--c-cyan);
+  border: 1px solid var(--c-teal);
   border-radius: var(--r-sm);
-  color: var(--c-cyan);
+  color: var(--c-teal);
   font-family: var(--f-display);
   font-size: .75rem; letter-spacing: 2px; text-transform: uppercase;
   cursor: pointer;
@@ -265,9 +266,9 @@ body {
 .particle {
   position: absolute; font-family: var(--f-mono); font-size: 12px;
   opacity: 0; animation: particleFloat linear infinite;
-  color: rgba(0,240,255,.06);
+  color: rgba(180,60,60,.08);
 }
-.particle:nth-child(odd) { color: rgba(255,42,109,.04); }
+.particle:nth-child(odd) { color: rgba(212,160,23,.06); }
 @keyframes particleFloat {
   0%  { transform: translateY(100%) rotate(0); opacity: 0; }
   10% { opacity: 1; }
@@ -279,7 +280,7 @@ body {
 .battle-ground {
   position: absolute; bottom: 0; left: 0; right: 0;
   height: 36px;
-  background: linear-gradient(0deg,rgba(0,0,0,.5) 0%,transparent 100%);
+  background: linear-gradient(0deg,rgba(44,24,16,.18) 0%,transparent 100%);
   z-index: 1; pointer-events: none;
 }
 
@@ -300,10 +301,10 @@ body {
 /* Boss icon — RPG-Awesome */
 .demon-icon {
   font-size: 76px !important; line-height: 1; display: block;
-  color: var(--c-cyan);
-  text-shadow: 0 0 14px rgba(0,240,255,.6), 0 0 36px rgba(0,240,255,.25);
+  color: var(--c-teal);
+  text-shadow: 0 2px 8px rgba(0,0,0,.2);
   animation: bossFloat 3.5s ease-in-out infinite;
-  transition: text-shadow .5s, color .5s;
+  transition: transform .3s;
   position: relative; z-index: 2;
 }
 @keyframes bossFloat {
@@ -313,11 +314,11 @@ body {
 .demon-icon.hurt {
   animation: bossShake .4s ease, bossFloat 3.5s ease-in-out infinite;
   color: #fff !important;
-  text-shadow: 0 0 28px #fff, 0 0 60px #fff !important;
+  text-shadow: 0 0 20px rgba(255,220,0,.8), 0 0 40px rgba(255,200,0,.4) !important;
 }
 .demon-icon.evolved {
-  color: var(--c-magenta) !important;
-  text-shadow: 0 0 18px rgba(255,42,109,.7), 0 0 48px rgba(255,42,109,.3) !important;
+  color: var(--c-red) !important;
+  text-shadow: 0 0 18px rgba(192,57,43,.7), 0 0 48px rgba(255,42,109,.3) !important;
 }
 @keyframes bossShake {
   0%,100%{transform:translateX(0)}
@@ -330,7 +331,7 @@ body {
   position: absolute;
   width: 118px; height: 118px;
   border-radius: 50%;
-  border: 2px solid rgba(0,240,255,.13);
+  border: 2px solid rgba(192,57,43,.18);
   animation: ringSpin 7s linear infinite;
   pointer-events: none;
   z-index: 1;
@@ -338,7 +339,7 @@ body {
 .demon-ring::after {
   content: ''; position: absolute; inset: -8px;
   border-radius: 50%;
-  border: 1px dashed rgba(255,42,109,.08);
+  border: 1px dashed rgba(192,57,43,.1);
   animation: ringSpin 11s linear infinite reverse;
 }
 @keyframes ringSpin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
@@ -348,8 +349,8 @@ body {
 .boss-nameplate .name {
   font-family: var(--f-display);
   font-size: .75rem; font-weight: 700;
-  color: var(--c-cyan); letter-spacing: 3px; text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(0,240,255,.4);
+  color: var(--c-teal); letter-spacing: 3px; text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0,0,0,.18);
 }
 .boss-nameplate .sub { font-size: .58rem; color: var(--c-muted); margin-top: 2px; }
 
@@ -367,12 +368,12 @@ body {
 }
 .hp-fill {
   height: 100%; width: 100%;
-  background: linear-gradient(90deg, rgba(255,42,109,.7), var(--c-magenta));
+  background: linear-gradient(90deg, rgba(192,57,43,.7), var(--c-red));
   transition: width .5s var(--ease-cyber);
   box-shadow: inset 0 0 8px rgba(255,42,109,.3);
   border-radius: 99px;
 }
-.hp-fill.low { background: linear-gradient(90deg,#b31248,#ff2a6d); box-shadow: inset 0 0 10px rgba(255,42,109,.5); }
+.hp-fill.low { background: linear-gradient(90deg,#922b21,#c0392b); box-shadow: inset 0 0 10px rgba(192,57,43,.5); }
 .hp-fill.critical { animation: hpPulse .5s ease-in-out infinite; }
 @keyframes hpPulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
@@ -381,13 +382,13 @@ body {
   text-align: center;
   font-family: var(--f-display); font-size: .68rem; font-weight: 700;
   letter-spacing: 3px; text-transform: uppercase;
-  color: var(--c-cyan); padding: var(--sp-1) var(--sp-3);
+  color: var(--c-teal); padding: var(--sp-1) var(--sp-3);
   position: relative; z-index: var(--z-scene);
 }
 .phase-indicator.p2 {
-  color: var(--c-magenta);
+  color: var(--c-red);
   animation: textFlicker .12s ease-in-out infinite;
-  text-shadow: 0 0 10px rgba(255,42,109,.5);
+  text-shadow: 0 0 10px rgba(192,57,43,.5);
 }
 @keyframes textFlicker { 0%,100%{opacity:1} 50%{opacity:.6} }
 .phase-desc { text-align: center; font-size: .6rem; color: var(--c-muted); padding: 0 var(--sp-3) var(--sp-2); position: relative; z-index: var(--z-scene); }
@@ -397,17 +398,17 @@ body {
   margin: 0 var(--sp-3) var(--sp-2);
   padding: var(--sp-2) var(--sp-3);
   background: var(--c-surface);
-  border: 1px solid rgba(0,240,255,.1);
+  border: 1px solid rgba(22,160,133,.12);
   border-radius: var(--r-sm);
   position: relative; z-index: var(--z-scene);
 }
 .task-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-1); }
 .task-label {
   font-family: var(--f-display); font-size: .62rem; font-weight: 700;
-  color: var(--c-cyan); letter-spacing: 1px; text-transform: uppercase;
+  color: var(--c-teal); letter-spacing: 1px; text-transform: uppercase;
 }
 .listen-btn {
-  background: none; border: none; color: var(--c-cyan-dim);
+  background: none; border: none; color: var(--c-teal-dim);
   font-size: .65rem; cursor: pointer; padding: 2px 6px;
   opacity: .65; transition: opacity .2s;
 }
@@ -424,15 +425,15 @@ body {
 .star-attempts { display: flex; justify-content: center; gap: var(--sp-2); padding: var(--sp-1) 0; position: relative; z-index: var(--z-scene); }
 .star-attempt { font-size: 26px; transition: all .3s; opacity: .18; filter: grayscale(1); }
 .star-attempt.earned { opacity: 1; filter: none; }
-.star-attempt.earned.s1 { color: var(--c-cyan); text-shadow: 0 0 10px rgba(0,240,255,.5); }
+.star-attempt.earned.s1 { color: var(--c-teal); text-shadow: 0 0 10px rgba(0,240,255,.5); }
 .star-attempt.earned.s2 { color: var(--c-yellow); text-shadow: 0 0 10px rgba(251,191,36,.5); }
-.star-attempt.earned.s3 { color: var(--c-magenta); text-shadow: 0 0 14px rgba(255,42,109,.7); animation: starPulse .6s ease; }
+.star-attempt.earned.s3 { color: var(--c-red); text-shadow: 0 0 14px rgba(192,57,43,.7); animation: starPulse .6s ease; }
 @keyframes starPulse { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
 
 .crit-label {
   display: none; text-align: center;
   font-family: var(--f-display); font-size: .72rem; font-weight: 700;
-  letter-spacing: 2px; color: var(--c-magenta);
+  letter-spacing: 2px; color: var(--c-red);
   animation: critFlash .5s ease;
   position: relative; z-index: var(--z-scene);
 }
@@ -442,7 +443,7 @@ body {
 /* Feedback */
 .feedback { text-align: center; padding: var(--sp-1) var(--sp-3); font-size: .7rem; font-weight: 600; display: none; position: relative; z-index: var(--z-scene); }
 .feedback.pass { display: block; color: var(--c-green); }
-.feedback.fail { display: block; color: var(--c-magenta); }
+.feedback.fail { display: block; color: var(--c-red); }
 .feedback.loading { display: block; color: var(--c-muted); }
 .stt-heard { text-align: center; font-size: .62rem; padding: 0 var(--sp-3) 2px; min-height: 14px; font-style: italic; color: var(--c-muted); position: relative; z-index: var(--z-scene); }
 
@@ -451,23 +452,23 @@ body {
 .rec-btn {
   width: 100%; padding: var(--sp-3);
   background: transparent;
-  border: 1px solid var(--c-magenta);
+  border: 1px solid var(--c-red);
   border-radius: var(--r-sm);
-  color: var(--c-magenta);
+  color: var(--c-red);
   font-family: var(--f-display); font-size: .78rem; letter-spacing: 2px; text-transform: uppercase;
   cursor: pointer;
   transition: background .2s, box-shadow .2s;
   display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
 }
-.rec-btn:hover:not(:disabled) { background: rgba(255,42,109,.08); box-shadow: var(--glow-magenta); }
+.rec-btn:hover:not(:disabled) { background: rgba(192,57,43,.1); box-shadow: var(--glow-red); }
 .rec-btn:disabled { opacity: .4; cursor: default; }
 .rec-btn.recording {
   animation: recPulse .8s ease-in-out infinite !important;
-  box-shadow: 0 0 28px rgba(255,42,109,.55) !important;
+  box-shadow: 0 0 28px rgba(192,57,43,.55) !important;
 }
 @keyframes recPulse {
   0%,100%{box-shadow: 0 0 10px rgba(255,42,109,.3)}
-  50%{box-shadow: 0 0 38px rgba(255,42,109,.8)}
+  50%{box-shadow: 0 0 38px rgba(192,57,43,.8)}
 }
 
 /* Volume meter */
@@ -475,13 +476,13 @@ body {
 .vol-meter.active { display: block; }
 .vol-meter-label { font-size: .58rem; color: var(--c-muted); text-align: center; margin-bottom: 3px; }
 .vol-track { height: 7px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 99px; overflow: hidden; }
-.vol-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--c-green), var(--c-yellow), var(--c-magenta)); transition: width .1s linear; border-radius: 99px; }
+.vol-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--c-green), var(--c-yellow), var(--c-red)); transition: width .1s linear; border-radius: 99px; }
 .vol-label { font-size: .58rem; color: var(--c-muted); text-align: center; margin-top: 3px; }
 
 /* Bypass */
 .bypass-btn-wrap { display: none; margin: var(--sp-1) var(--sp-3) var(--sp-1); position: relative; z-index: var(--z-scene); }
 .bypass-btn-wrap.show { display: block; animation: bypassGlow 1.5s ease-in-out infinite; }
-@keyframes bypassGlow { 0%,100%{opacity:.6} 50%{opacity:1} }
+@keyframes bypassGlow { 0%,100%{opacity:.5} 50%{opacity:.9} }
 .bypass-zone { display: none; margin: var(--sp-1) var(--sp-3) var(--sp-2); position: relative; z-index: var(--z-scene); }
 .bypass-zone.show { display: block; }
 .bypass-input {
@@ -491,13 +492,13 @@ body {
   font-family: var(--f-body); font-size: .78rem;
   outline: none; transition: border-color .2s;
 }
-.bypass-input:focus { border-color: var(--c-cyan); box-shadow: var(--glow-cyan); }
+.bypass-input:focus { border-color: var(--c-teal); box-shadow: var(--glow-cyan); }
 .bypass-hint { font-size: .58rem; color: var(--c-muted); text-align: right; margin-top: 3px; min-height: 12px; }
 .bypass-submit {
   width: 100%; margin-top: var(--sp-2);
   padding: var(--sp-2);
-  background: transparent; border: 1px solid var(--c-cyan);
-  border-radius: var(--r-sm); color: var(--c-cyan);
+  background: transparent; border: 1px solid var(--c-teal);
+  border-radius: var(--r-sm); color: var(--c-teal);
   font-family: var(--f-display); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase;
   cursor: pointer; transition: background .2s, box-shadow .2s;
 }
@@ -508,8 +509,8 @@ body {
 .dmg-num {
   position: absolute; z-index: 10; pointer-events: none;
   font-family: var(--f-display); font-size: 26px; font-weight: 900;
-  color: var(--c-magenta);
-  text-shadow: 0 0 8px rgba(255,42,109,.6);
+  color: var(--c-red);
+  text-shadow: 0 0 8px rgba(192,57,43,.6);
   animation: dmgFloat 1s ease-out forwards;
 }
 @keyframes dmgFloat {
@@ -525,13 +526,13 @@ body {
 #battleQInner {
   padding: var(--sp-2) var(--sp-3);
   background: var(--c-surface);
-  border-left: 3px solid var(--c-magenta);
+  border-left: 3px solid var(--c-red);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
 }
-#battleQInner.p2 { border-left-color: var(--c-cyan); }
+#battleQInner.p2 { border-left-color: var(--c-teal); }
 .battle-q-tag { font-size: .55rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; font-family: var(--f-display); }
-.battle-q-tag.tag-a { color: var(--c-magenta); }
-.battle-q-tag.tag-b { color: var(--c-cyan); }
+.battle-q-tag.tag-a { color: var(--c-red); }
+.battle-q-tag.tag-b { color: var(--c-teal); }
 .battle-q-stem { font-size: .75rem; line-height: 1.6; margin-bottom: var(--sp-2); color: var(--c-text); }
 .battle-q-opts { display: grid; gap: 3px; }
 .battle-q-opt {
@@ -542,14 +543,14 @@ body {
   min-width: 0; word-break: break-word;
 }
 .battle-q-opt.correct { border-color: var(--c-green); background: rgba(5,255,161,.07); color: var(--c-green); }
-.battle-q-opt.wrong   { border-color: var(--c-magenta); background: rgba(255,42,109,.07); color: var(--c-magenta); }
+.battle-q-opt.wrong   { border-color: var(--c-red); background: rgba(192,57,43,.08); color: var(--c-red); }
 
 /* ═══════════════════════════════════════════════════════════════
    VICTORY SCREEN
    ═══════════════════════════════════════════════════════════════ */
 .victory-bg {
   display: none; position: fixed; inset: 0; z-index: var(--z-vict);
-  background: rgba(4,5,10,.88);
+  background: rgba(44,24,16,.82);
   justify-content: center; align-items: center;
   animation: fadeIn .4s ease;
 }
@@ -572,14 +573,14 @@ body {
 .victory-trophy { font-size: 52px; margin-bottom: var(--sp-3); color: var(--c-yellow); }
 .victory-title {
   font-family: var(--f-display); font-size: 1rem; font-weight: 700;
-  color: var(--c-yellow); margin-bottom: var(--sp-1);
-  text-shadow: 0 0 12px rgba(251,191,36,.5);
+  color: var(--c-red); margin-bottom: var(--sp-1);
+  text-shadow: 0 1px 4px rgba(0,0,0,.15);
 }
 .victory-sub { font-size: .65rem; color: var(--c-muted); margin-bottom: var(--sp-3); }
 .victory-xp {
   display: inline-block;
-  background: linear-gradient(135deg, var(--c-yellow), var(--c-cyan));
-  color: #000; font-weight: 900; font-size: 1.2rem;
+  background: linear-gradient(135deg, var(--c-yellow), var(--c-teal));
+  color: #fff; font-weight: 900; font-size: 1.2rem;
   padding: var(--sp-2) var(--sp-6);
   border-radius: 3px; margin-bottom: var(--sp-3);
   font-family: var(--f-display);
@@ -587,8 +588,8 @@ body {
 }
 .victory-rule {
   text-align: left;
-  background: rgba(0,240,255,.03);
-  border-left: 3px solid var(--c-cyan);
+  background: rgba(22,160,133,.04);
+  border-left: 3px solid var(--c-teal);
   padding: var(--sp-2) var(--sp-3);
   margin-bottom: var(--sp-3);
   font-size: .7rem; line-height: 1.55; color: var(--c-muted);
@@ -613,7 +614,7 @@ body {
   pointer-events: none;
   animation: popReward .8s ease forwards;
   color: var(--c-yellow);
-  text-shadow: 0 0 12px rgba(251,191,36,.6);
+  text-shadow: 0 2px 8px rgba(0,0,0,.2);
 }
 @keyframes popReward {
   0%  { opacity:0; transform:translate(-50%,-50%) scale(0); }
@@ -640,7 +641,7 @@ body {
   <div class="card hud">
     <span class="hud-q">GRAMMAR TRIAL <span id="hudQ">1</span>/<span id="hudTotal">10</span></span>
     <span class="hud-streak" id="hudStreak">—</span>
-    <span class="hud-score"><i class="ra ra-crystals"></i> <span id="hudScore">0</span></span>
+    <span class="hud-score">💎 <span id="hudScore">0</span></span>
   </div>
 
   <!-- Quest Progress -->
@@ -673,7 +674,7 @@ body {
       <div class="demon-stage" id="demonStage">
         <div class="demon-ring"></div>
         <div class="demon-sprite-wrap" id="spriteWrap">
-          <div class="pixel-sprite" id="pixelSprite"></div>
+          
           <i class="ra ra-dragon demon-icon" id="demonPortrait"></i>
         </div>
         <div id="elemParticles" style="position:absolute;inset:0;pointer-events:none;z-index:1"></div>
@@ -744,7 +745,7 @@ body {
   <!-- Victory -->
   <div class="victory-bg" id="victoryBg">
     <div class="victory-card">
-      <div class="victory-trophy"><i class="ra ra-skull"></i></div>
+      <div class="victory-trophy">☠️</div>
       <h2 class="victory-title">DRONE DESTROYED</h2>
       <div class="victory-sub">Grammar Drone has been neutralized</div>
       <div class="victory-xp" id="xpBadge">+25 XP</div>
@@ -852,13 +853,8 @@ function spawnBurst(type) {
    SPRITE HELPERS
    ═══════════════════════════════════════════════════════════════ */
 function setSprite(m) {
-  if (!m || !m.spriteClass) return;
-  $('spriteWrap').className = 'demon-sprite-wrap ' + m.spriteClass;
-  const base = m.spriteClass
-    .replace('Drake','DrakeFire').replace('Wyrm','WyrmIce')
-    .replace('Bird','BirdThunder').replace('Flame','FlameShadow')
-    .replace('Leviathan','LeviathanWater').replace('Golem','CrystalGolem');
-  $('pixelSprite').className = 'pixel-sprite ' + base;
+  if (!m) return;
+  $('spriteWrap').style.display = 'none';
   S.currentElem = m.elemType || 'fire';
   spawnElemParticles(S.currentElem);
   spawnElemParticles(S.currentElem);
@@ -870,11 +866,6 @@ function demonHurt() {
   void el.offsetWidth;
   el.classList.add('hurt');
   setTimeout(() => el.classList.remove('hurt'), 500);
-  const px = $('pixelSprite');
-  px.classList.remove('hurt');
-  void px.offsetWidth;
-  px.classList.add('hurt');
-  setTimeout(() => px.classList.remove('hurt'), 500);
   const ep = $('elemParticles');
   if (ep) spawnElemParticles(S.currentElem, ep);
   spawnBurst(S.currentElem);
@@ -931,14 +922,14 @@ function highlightKeywords(text) {
   if (!text) return '';
   let escaped = _escapeHTML(text);
   const rules = [
-    {pat:/\b(?:the|that|this|these|those|to|hat|is|ere|ey|em)\b/gi,                                   col:'var(--c-cyan)'},
-    {pat:/\b(?:subjunctive|demand|suggest|recommend|require|ask|insist|propose|prefer)\b/gi,         col:'var(--c-yellow)'},
-    {pat:/' (?:be|been|being)'|\bto be\b|\bbe \b/gi,                                                 col:'var(--c-yellow)'},
-    {pat:/\b(?:was|were|had|submit|seek|target|understand|complete|sign|arrive)\b/gi,               col:'var(--c-cyan)'},
-    {pat:/\b(?:neither|nor|not only|but also|hardly|scarcely|no sooner)\b/gi,                       col:'var(--c-magenta)'},
-    {pat:/\b(?:passive|infinitive|gerund|participle|relative|comparative|superlative)\b/gi,         col:'var(--c-magenta)'},
+    {pat:/\b(?:the|that|this|these|those|to|hat|is|ere|ey|em)\b/gi,                                   col:'var(--c-teal)'},
+    {pat:/\b(?:subjunctive|demand|suggest|recommend|require|ask|insist|propose|prefer)\b/gi,         col:'var(--c-gold)'},
+    {pat:/' (?:be|been|being)'|\bto be\b|\bbe \b/gi,                                                 col:'var(--c-gold)'},
+    {pat:/\b(?:was|were|had|submit|seek|target|understand|complete|sign|arrive)\b/gi,               col:'var(--c-teal)'},
+    {pat:/\b(?:neither|nor|not only|but also|hardly|scarcely|no sooner)\b/gi,                       col:'var(--c-red)'},
+    {pat:/\b(?:passive|infinitive|gerund|participle|relative|comparative|superlative)\b/gi,         col:'var(--c-red)'},
     {pat:/\b(?:subject|verb|adjective|adverb|noun|pronoun)\b/gi,                                     col:'var(--c-muted)'},
-    {pat:/\b(?:at|on|in|by|for|to|with|from|until|within)\b/gi,                                      col:'rgba(0,240,255,.55)'},
+    {pat:/\b(?:at|on|in|by|for|to|with|from|until|within)\b/gi,                                      col:'rgba(22,160,133,.55)'},
     {pat:/\bthat\b/gi,                                                                              col:'rgba(255,255,255,.2)'},
   ];
   for (const {pat, col} of rules) {
@@ -1099,7 +1090,7 @@ function startBattle() {
   const m = S.monsters[S.monsterIdx % S.monsters.length];
   S.monsterIdx++;
 
-  $('demonPortrait').className = 'ra ' + m.icon + ' demon-icon';
+  $('demonPortrait').textContent = m.icon;
   $('demonPortrait').classList.remove('evolved');
   setSprite(m);
   $('bossName').textContent = m.name;
@@ -1148,7 +1139,7 @@ function _showBattleQ() {
   const tag  = S.phase === 1
     ? '<div class="battle-q-tag tag-a">YOUR ANSWER</div>'
     : '<div class="battle-q-tag tag-b">EXPLANATION</div>';
-  const borderColor = S.phase === 1 ? 'var(--c-magenta)' : 'var(--c-cyan)';
+  const borderColor = S.phase === 1 ? 'var(--c-red)' : 'var(--c-teal)';
 
   $('battleQInner').style.borderLeftColor = borderColor;
   $('battleQInner').className = S.phase === 2 ? 'p2' : '';
@@ -1464,8 +1455,8 @@ function resetBattle() {
 function updateHUD() {
   $('hudScore').textContent = S.score;
   const c = S.streak, s = $('hudStreak');
-  if      (c >= 7) { s.innerHTML = '<i class="ra ra-crystals"></i> ×' + c; s.className = 'hud-streak s3'; }
-  else if (c >= 4) { s.innerHTML = '<i class="ra ra-crystal"></i> ×' + c; s.className = 'hud-streak s2'; }
+  if      (c >= 7) { s.innerHTML = '💎 ×' + c; s.className = 'hud-streak s3'; }
+  else if (c >= 4) { s.innerHTML = '💎 ×' + c; s.className = 'hud-streak s2'; }
   else if (c >= 1) { s.innerHTML = '×' + c; s.className = 'hud-streak'; }
   else              { s.innerHTML = '—'; s.className = 'hud-streak'; }
 }
