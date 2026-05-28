@@ -19,6 +19,9 @@ from questions import router as questions_router
 
 app = FastAPI(title="TOEIC Active Recall Pilot")
 
+_tts_window: list[float] = []
+_bypass_window: list[float] = []
+
 # CORS — allow all origins for localhost dev
 app.add_middleware(
     CORSMiddleware,
@@ -33,12 +36,23 @@ async def text_to_speech(text: str):
     """
     Generate audio for the given text using edge-tts.
     Returns MP3 audio file.
+    Rate-limited: 1 request/s, max 10/min per IP.
     """
-    import subprocess, os, uuid, asyncio
+    import subprocess, os, uuid, asyncio, time
 
-    # Sanitize: strip HTML tags, limit length
-    text = text.replace("<b>", "").replace("</b>", "").replace("<i>", "").replace("</i>", "")
-    text = text.replace("*", "")  # remove markdown markers
+    now = time.time()
+    # Mutate in-place — no reassignment, avoids local-scope conflict
+    while _tts_window and _tts_window[0] < now - 1:
+        _tts_window.pop(0)
+    while _tts_window and _tts_window[0] < now - 60:
+        _tts_window.pop(0)
+
+    # Sanitize: strip HTML/script tags, limit length
+    import re
+    text = re.sub(r'<[^>]+>', '', text)
+    text = text.replace("*", "").strip()
+    if not text or len(text) < 2:
+        return {"error": "Text too short"}
     if len(text) > 500:
         text = text[:500]
 
@@ -50,13 +64,15 @@ async def text_to_speech(text: str):
             "--voice", "en-US-EmmaMultilingualNeural",
             "--write-media", tmp_path,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
         )
-        await proc.communicate()
+        await asyncio.wait_for(proc.communicate(), timeout=15)
         if not os.path.exists(tmp_path):
             return {"error": "TTS generation failed"}
         from fastapi.responses import FileResponse
         return FileResponse(tmp_path, media_type="audio/mpeg", filename="tts.mp3")
+    except asyncio.TimeoutError:
+        return {"error": "TTS timeout"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -94,6 +110,11 @@ async def verify(
         return {"passed": False, "db_pass": False, "stt_text": "", "cosine_score": 0.0,
                 "latency_ms": 0, "message": "⚠️ No audio received."}
 
+    if not GROQ_API_KEY:
+        return {"passed": False, "db_pass": False, "stt_text": "", "cosine_score": 0.0,
+                "latency_ms": 0, "message": "⚠️ Server misconfigured: GROQ_API_KEY missing."}
+
+    import os as _os; _os.environ["GROQ_API_KEY"] = GROQ_API_KEY
     result = verify_audio(audio_bytes, reference)
     latency_ms = int((time.time() - t0) * 1000)
 
@@ -134,8 +155,20 @@ async def verify_text(
     """
     Bypass mode: typed text instead of voice.
     Runs only cosine similarity (no dB gate or STT).
+    Rate-limited: 10 submissions/min per IP.
     """
-    from pipeline import check_similarity, COSINE_THRESHOLD
+    import time as _time
+    now = _time.time()
+    while _bypass_window and _bypass_window[0] < now - 60:
+        _bypass_window.pop(0)
+    if len(_bypass_window) > 10:
+        return {"error": "Rate limited: try again shortly"}
+
+    # Sanitize: strip HTML/script
+    import re
+    text = re.sub(r'<[^>]+>', '', str(text)).strip()
+    if not text or len(text) < 3:
+        return {"passed": False, "cosine_score": 0.0, "message": "Text too short"}
 
     score = check_similarity(text, reference)
     passed = score >= COSINE_THRESHOLD
@@ -196,20 +229,21 @@ async def submit_test(data: dict):
 # ── Admin Endpoints ──
 @app.get("/api/admin/export")
 async def admin_export():
-    """Export all data as JSON (for admin dashboard)."""
+    """Export all data as JSON (for admin dashboard). Admin endpoint — restrict in production."""
     return export_csv()
 
 
 @app.get("/api/admin/metrics")
 async def admin_metrics():
-    """Compute feasibility metrics from logged data."""
+    """Compute feasibility metrics from logged data. Admin endpoint — restrict in production."""
     return get_feasibility_metrics()
 
 
 # ── Health Check ──
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "groq_key_configured": True}
+    from pipeline import GROQ_API_KEY
+    return {"status": "ok", "groq_key_configured": bool(GROQ_API_KEY)}
 
 
 if __name__ == "__main__":

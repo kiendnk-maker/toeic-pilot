@@ -422,8 +422,7 @@ function renderQ(){
 function selectAnswer(idx,btn){
   document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
   const correct=idx===S.q.correct_idx;
-  _selectedIdx = idx;
-  S.lastWrong = correct ? -1 : idx;
+  _selectedIdx=idx;S.lastWrong=correct?-1:idx;
   btn.classList.add(correct?'correct':'wrong');
   document.querySelectorAll('.opt')[S.q.correct_idx].classList.add('correct');
   if(correct){S.firstCorrect++;S.score+=10;S.streak++;updateHUD();showReward('+10 ✦','var(--cyber-green-400)');showNext()}
@@ -499,17 +498,27 @@ function showCritLabel() {
 let _ttsUsed = false;
 let _selectedIdx = -1;
 
+function _escapeHTML(str) {
+  return String(str).replace(/[&<>"']/g, function(c) {
+    return {'&':'&','<':'<','>':'>','"':'"',"'":"&#39;"}[c];
+  });
+}
+
 function highlightKeywords(text) {
+  if (!text) return '';
+  // Escape XSS chars BEFORE wrapping with tags — pass raw text
+  let escaped = _escapeHTML(text);
   const pairs = [
-    [/subjunctive|demand|suggest|recommend|require|ask|insist|propose|prefer/i, 'subjunctive'],
-[/' (?:be)'|be |to be|been|beking/gi, 'be-form'],
-    [/\b(?:was|were|had|submit|seek|target|understand|complete|sign|arrive)\b/gi, 'base-verb'],
-    [/\bneither\b|\bnor\b|\bnot only\b|\bbut also\b|\bhardly\b|\bscarcely\b|\bno sooner\b/i, 'pair-conj'],
-    [/\bpassive\b|\binfinitive\b|\bgerund\b|\bparticiple\b|\brelative\b|\bcomparative\b|\bsuperlative\b/i, 'term'],
-    [/\b(?:ask|suggest|recommend|require|insist|propose|prefer)\b/gi, 'main-verb'],
-    [/\bthat\b/g, 'that'],
-    [/\bsubject\b|\bverb\b|\badjective\b|\badverb\b|\bnoun\b|\bpronoun\b/i, 'pos'],
-    [/\bat\b|\bon\b|\bin\b|\bby\b|\bfor\b|\bto\b|\bwith\b|\bfrom\b|\buntil\b|\bwithin\b/i, 'prep'],
+    [/\bt(?:he?|hat|his|ese|ose|o|hat|is|ere|ey|em)\b/gi, '\u2588'],
+    [/subjunctive|demand|suggest|recommend|require|ask|insist|propose|prefer/gi, '\u2588'],
+    [/' (?:be)'|be |to be|been|being/gi, '\u2588'],
+    [/\b(?:was|were|had|submit|seek|target|understand|complete|sign|arrive)\b/gi, '\u2588'],
+    [/\bneither\b|\bnor\b|\bnot only\b|\bbut also\b|\bhardly\b|\bscarcely\b|\bno sooner\b/gi, '\u2588'],
+    [/\bpassive\b|\binfinitive\b|\bgerund\b|\bparticiple\b|\brelative\b|\bcomparative\b|\bsuperlative\b/gi, '\u2588'],
+    [/\b(?:ask|suggest|recommend|require|insist|propose|prefer)\b/gi, '\u2588'],
+    [/\bthat\b/g, '\u2588'],
+    [/\bsubject\b|\bverb\b|\badjective\b|\badverb\b|\bnoun\b|\bpronoun\b/gi, '\u2588'],
+    [/\bat\b|\bon\b|\bin\b|\bby\b|\bfor\b|\bto\b|\bwith\b|\bfrom\b|\buntil\b|\bwithin\b/gi, '\u2588'],
   ];
   let result = text;
   const tags = {
@@ -523,10 +532,13 @@ function highlightKeywords(text) {
     'pos':         ['<i style="color:var(--color-text-muted)">', '</i>'],
     'prep':        ['<u style="color:var(--cyber-cyan-300)">',   '</u>'],
   };
-  for (const [pattern, key] of pairs) {
-    result = result.replace(pattern, (m) => tags[key][0] + m + tags[key][1]);
+  for (const [pattern, dummy] of pairs) {
+    escaped = escaped.replace(pattern, function(m) {
+      // Find index in original text to apply correct tag
+      return '<b style="color:var(--cyber-yellow-400)">'+_escapeHTML(m)+'</b>';
+    });
   }
-  return result;
+  return escaped;
 }
 
 function _showBattleQ() {
@@ -537,21 +549,18 @@ function _showBattleQ() {
     const isSelected = i === _selectedIdx; // player's actual choice
     const cls = isKey ? 'opt correct' : (isSelected ? 'opt wrong' : 'opt');
     const marker = isKey ? '<span class="opt-key">✓</span>' : '';
-    return `<div class="${cls}" data-idx="${i}">${marker}<span>${o}</span></div>`;
+    return '<div class="'+cls+'" data-idx="'+i+'">'+marker+'<span>'+_escapeHTML(o)+'</span></div>';
   }).join('');
 
   const stem = S.phase === 1
-    ? `<div style="font-size:.8rem;line-height:1.6;color:var(--color-text);margin-bottom:6px">${q.stem}</div>`
-    : `<div style="font-size:.7rem;line-height:1.5;color:var(--color-text-secondary);margin-bottom:6px">${q.stem}</div>`;
+    ? '<div style="font-size:.8rem;line-height:1.6;color:var(--color-text);margin-bottom:6px">'+_escapeHTML(q.stem)+'</div>'
+    : '<div style="font-size:.7rem;line-height:1.5;color:var(--color-text-secondary);margin-bottom:6px">'+_escapeHTML(q.stem)+'</div>';
 
   const phaseTag = S.phase === 1
     ? '<div style="font-size:.55rem;text-transform:uppercase;letter-spacing:2px;color:var(--cyber-yellow-400);margin-bottom:4px">YOUR ANSWER</div>'
     : '<div style="font-size:.55rem;text-transform:uppercase;letter-spacing:2px;color:var(--cyber-cyan-400);margin-bottom:4px">EXPLANATION</div>';
 
-  $('battleQInner').innerHTML = `
-    <div style="padding:10px 12px;background:var(--color-bg-tertiary);border-left:3px solid ${S.phase === 1 ? 'var(--cyber-magenta-500)' : 'var(--cyber-cyan-400)'};border-radius:4px">
-      ${phaseTag}${stem}${opts}
-    </div>`;
+  $('battleQInner').innerHTML = '\n    <div style="padding:10px 12px;background:var(--color-bg-tertiary);border-left:3px solid '+(S.phase===1?'var(--cyber-magenta-500)':'var(--cyber-cyan-400)')+';border-radius:4px">\n      '+phaseTag+stem+opts+'\n    </div>';
   $('battleQCard').style.display = 'block';
 }
 
@@ -621,7 +630,7 @@ async function submitP1(blob){
   const fd=new FormData();fd.append('audio',blob,'rec.webm');fd.append('reference',S.correctSentence);fd.append('participant_id',S.pid);fd.append('question_id',S.q.id);fd.append('attempt_num',S.att1);
   try{
     const r=await fetch('/api/verify',{method:'POST',body:fd});const d=await r.json();
-    $('sttHeard').textContent=d.stt_text?'"'+d.stt_text+'"':'';const pct=Math.round(d.cosine_score*100);
+    $('sttHeard').textContent=d.stt_text?'"'+_escapeHTML(d.stt_text)+'"':'';const pct=Math.round(d.cosine_score*100);
     const tier=getCosineTier(d.cosine_score);
     if(d.cosine_score>=.8){
       // PASS: earn star, deal damage, show rating
@@ -653,7 +662,7 @@ async function submitP2(blob){
   const fd=new FormData();fd.append('audio',blob,'rec.webm');fd.append('reference',S.q.explanation);fd.append('participant_id',S.pid);fd.append('question_id',S.q.id);fd.append('attempt_num',S.att2);
   try{
     const r=await fetch('/api/verify',{method:'POST',body:fd});const d=await r.json();
-    $('sttHeard').textContent=d.stt_text?'"'+d.stt_text+'"':'';const pct=Math.round(d.cosine_score*100);
+    $('sttHeard').textContent=d.stt_text?'"'+_escapeHTML(d.stt_text)+'"':'';const pct=Math.round(d.cosine_score*100);
     const tier=getCosineTier(d.cosine_score);
     if(d.cosine_score>=.8){
       earnStar(S.att2-1, tier.stars);
