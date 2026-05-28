@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Test — Pilot Study</title>
+<style>
+  :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --primary: #4f46e5; --success: #10b981;
+          --danger: #ef4444; --warn: #f59e0b; --border: #334155; --muted: #94a3b8; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
+         min-height: 100vh; }
+  /* ── Sticky Header ── */
+  #header { position: sticky; top: 0; z-index: 100; background: var(--card);
+            border-bottom: 1px solid var(--border); padding: 10px 18px; }
+  #header-inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  #progress-dots { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .dot { width: 22px; height: 22px; border-radius: 4px; border: 2px solid var(--border);
+         display: flex; align-items: center; justify-content: center; font-size: 0.6rem;
+         cursor: default; transition: all 0.2s; background: #0f172a; color: var(--muted); }
+  .dot.done { border-color: var(--success); background: #064e3b; color: #6ee7b7; cursor: pointer; }
+  .dot.current { border-color: var(--primary); background: #312e81; color: #a5b4fc; }
+  .dot.locked { opacity: 0.4; }
+  #header-stats { font-size: 0.85rem; color: var(--muted); white-space: nowrap; min-width: 80px; text-align: right; }
+  #timer { font-size: 0.85rem; color: var(--warn); min-width: 65px; text-align: right; }
+  /* ── Main ── */
+  #main { max-width: 760px; margin: 0 auto; padding: 16px; }
+  /* ── Question Card ── */
+  .q-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 14px;
+            border: 2px solid var(--border); transition: border 0.3s, opacity 0.3s; position: relative; }
+  .q-card.active { border-color: var(--primary); }
+  .q-card.done { border-color: var(--success); }
+  .q-card.locked { opacity: 0.45; pointer-events: none; }
+  .q-card.locked::after { content: "🔒 Complete previous question first"; position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%,-50%); color: var(--muted); font-size: 0.9rem;
+    background: var(--card); padding: 8px 16px; border-radius: 8px; white-space: nowrap; }
+  .q-num { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .q-num .badge { font-size: 0.7rem; background: #064e3b; color: #6ee7b7; padding: 2px 7px;
+                  border-radius: 10px; margin-left: 8px; display: none; }
+  .q-card.done .badge { display: inline; }
+  .q-stem { font-size: 1.1rem; line-height: 1.65; margin-bottom: 14px; color: #fff; }
+  /* Options */
+  .q-opts { display: flex; flex-direction: column; gap: 6px; }
+  .opt-label { display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+               border-radius: 8px; border: 2px solid var(--border); background: #0f172a;
+               cursor: pointer; transition: all 0.15s; font-size: 1rem; }
+  .opt-label:hover { border-color: var(--primary); background: #1e293b; }
+  .opt-label input[type=radio] { accent-color: var(--primary); width: 16px; height: 16px; }
+  .opt-label.selected { border-color: var(--primary); background: #312e81; }
+  .q-card.submitted .opt-label { pointer-events: none; opacity: 0.7; }
+  .q-card.submitted .opt-label.correct-ans { border-color: var(--success); background: #064e3b; opacity: 1; }
+  .q-card.submitted .opt-label.wrong-ans { border-color: var(--danger); background: #450a0a; opacity: 1; }
+  .result-icon { display: none; position: absolute; top: 16px; right: 16px; font-size: 1.3rem; }
+  .q-card.submitted .result-icon { display: block; }
+  /* Submit */
+  #submit-wrap { text-align: center; padding: 16px 0 40px; }
+  #submit-btn { padding: 14px 40px; border-radius: 10px; border: none; background: var(--success);
+                color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; opacity: 0.5; }
+  #submit-btn.enabled { opacity: 1; }
+  #submit-btn.enabled:hover { background: #059669; }
+  /* Score Modal */
+  #score-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                 background: rgba(0,0,0,0.7); z-index: 200; justify-content: center; align-items: center; }
+  #score-modal.show { display: flex; }
+  #score-card { background: var(--card); border-radius: 16px; padding: 32px; text-align: center;
+                max-width: 400px; width: 90%; }
+  #score-card .big { font-size: 3.5rem; font-weight: 900; color: var(--success); }
+  #score-card h2 { margin-bottom: 8px; }
+  #score-card button { margin-top: 16px; padding: 12px 28px; border-radius: 8px; border: none;
+                       background: var(--primary); color: white; font-size: 1rem; cursor: pointer; }
+  /* Mobile jump */
+  #jump-btn { position: fixed; bottom: 20px; right: 20px; z-index: 150; padding: 12px 18px;
+              border-radius: 50px; border: none; background: var(--primary); color: white;
+              font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.5); display: none; }
+  @media (max-width: 480px) {
+    #jump-btn { display: block; }
+    .dot { width: 18px; height: 18px; font-size: 0.5rem; }
+    .q-stem { font-size: 1rem; }
+    .opt-label { font-size: 0.95rem; padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="header-inner">
+    <div id="progress-dots"></div>
+    <span id="header-stats">0/30</span>
+    <span id="timer">⏱ <span id="time">00:00</span></span>
+  </div>
+</div>
+
+<div id="main"></div>
+
+<div id="submit-wrap"><button id="submit-btn" disabled>Submit Test (0/30)</button></div>
+
+<div id="score-modal"><div id="score-card">
+  <h2>Test Complete</h2>
+  <div class="big" id="final-score">0</div>
+  <p style="color:var(--muted)">out of 30</p>
+  <div id="score-detail" style="font-size:0.9rem;color:var(--muted);margin-top:8px;"></div>
+  <button onclick="closeModal()">Review Answers</button>
+</div></div>
+
+<button id="jump-btn" onclick="jumpToCurrent()">📍 Go to Q<span id="jump-num">1</span></button>
+
+<script>
+const STATE = {
+  pid: new URLSearchParams(location.search).get("pid") || "P001",
+  group: new URLSearchParams(location.search).get("group") || "B",
+  mode: new URLSearchParams(location.search).get("mode") || "pretest",
+  questions: [],
+  answers: {},       // question_idx → selected_option_idx
+  startTime: Date.now(),
+  submitted: false,
+};
+
+async function init() {
+  const res = await fetch(`/api/questions?set=${STATE.mode}`);
+  STATE.questions = await res.json();
+  buildProgress();
+  buildCards();
+  updateTimer();
+  setInterval(updateTimer, 5000);
+}
+
+function buildProgress() {
+  const dots = document.getElementById("progress-dots");
+  dots.innerHTML = STATE.questions.map((_, i) =>
+    `<div class="dot locked" id="dot-${i}" title="Q${i+1}">${i+1}</div>`
+  ).join("");
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = Object.keys(STATE.answers).length;
+  const firstUnanswered = STATE.questions.findIndex((_, i) => !(i in STATE.answers));
+  document.getElementById("header-stats").textContent = `${answered}/${STATE.questions.length}`;
+
+  STATE.questions.forEach((_, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    dot.classList.remove("done", "current", "locked");
+    if (i in STATE.answers) {
+      dot.classList.add("done");
+      dot.onclick = () => scrollToCard(i);
+    } else if (i === firstUnanswered || (i === 0 && answered === 0)) {
+      dot.classList.add("current");
+    } else {
+      dot.classList.add("locked");
+    }
+  });
+}
+
+function buildCards() {
+  const main = document.getElementById("main");
+  main.innerHTML = STATE.questions.map((q, i) => `
+    <div class="q-card ${i === 0 ? 'active' : 'locked'}" id="card-${i}">
+      <span class="result-icon" id="icon-${i}"></span>
+      <div class="q-num">Question ${i+1} <span class="badge" id="badge-${i}">✓ Answered</span></div>
+      <div class="q-stem">${q.stem}</div>
+      <div class="q-opts">
+        ${q.options.map((opt, oi) => `
+          <label class="opt-label" id="opt-${i}-${oi}">
+            <input type="radio" name="q${i}" value="${oi}" onchange="selectAnswer(${i}, ${oi})">
+            ${["A","B","C","D"][oi]}. ${opt}
+          </label>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (STATE.submitted) return;
+  const wasAnswered = qIdx in STATE.answers;
+  STATE.answers[qIdx] = optIdx;
+
+  // Highlight selected
+  STATE.questions[qIdx].options.forEach((_, oi) => {
+    const label = document.getElementById(`opt-${qIdx}-${oi}`);
+    label.classList.toggle("selected", oi === optIdx);
+  });
+
+  // Mark card done
+  const card = document.getElementById(`card-${qIdx}`);
+  card.classList.add("done");
+  card.classList.remove("active", "locked");
+
+  // Unlock next card
+  if (qIdx + 1 < STATE.questions.length) {
+    const nextCard = document.getElementById(`card-${qIdx+1}`);
+    nextCard.classList.remove("locked");
+    nextCard.classList.add("active");
+  }
+
+  updateProgress();
+  updateSubmitBtn();
+
+  // Scroll to next question after short delay
+  if (!wasAnswered && qIdx + 1 < STATE.questions.length) {
+    setTimeout(() => scrollToCard(qIdx + 1), 200);
+  }
+}
+
+function scrollToCard(idx) {
+  if (STATE.submitted) {
+    document.getElementById(`card-${idx}`).scrollIntoView({ behavior: "smooth", block: "center" });
+  } else if (idx in STATE.answers || idx === Object.keys(STATE.answers).length) {
+    document.getElementById(`card-${idx}`).scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}
+
+function updateSubmitBtn() {
+  const answered = Object.keys(STATE.answers).length;
+  const total = STATE.questions.length;
+  const btn = document.getElementById("submit-btn");
+  btn.textContent = `Submit Test (${answered}/${total})`;
+  if (answered === total) {
+    btn.classList.add("enabled");
+    btn.disabled = false;
+  }
+}
+
+async function submitTest() {
+  const answered = Object.keys(STATE.answers).length;
+  if (answered < STATE.questions.length) return;
+
+  STATE.submitted = true;
+  let correct = 0;
+
+  STATE.questions.forEach((q, i) => {
+    const card = document.getElementById(`card-${i}`);
+    card.classList.add("submitted");
+    const chosen = STATE.answers[i];
+    const isCorrect = chosen === q.correct_idx;
+    if (isCorrect) correct++;
+
+    // Highlight options
+    q.options.forEach((_, oi) => {
+      const label = document.getElementById(`opt-${i}-${oi}`);
+      if (oi === q.correct_idx) label.classList.add("correct-ans");
+      if (oi === chosen && !isCorrect) label.classList.add("wrong-ans");
+    });
+
+    // Icon
+    const icon = document.getElementById(`icon-${i}`);
+    icon.textContent = isCorrect ? "✅" : "❌";
+  });
+
+  // Submit score
+  await fetch("/api/test/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      participant_id: STATE.pid,
+      group_type: STATE.group,
+      test_type: STATE.mode,
+      score: correct,
+      total: STATE.questions.length
+    })
+  });
+
+  // Show modal
+  document.getElementById("final-score").textContent = correct;
+  document.getElementById("score-detail").textContent =
+    `${correct}/${STATE.questions.length} correct (${Math.round(correct/STATE.questions.length*100)}%)`;
+  document.getElementById("score-modal").classList.add("show");
+  document.getElementById("submit-btn").style.display = "none";
+}
+
+function closeModal() {
+  document.getElementById("score-modal").classList.remove("show");
+}
+
+function jumpToCurrent() {
+  const firstUnanswered = STATE.questions.findIndex((_, i) => !(i in STATE.answers));
+  const target = firstUnanswered >= 0 ? firstUnanswered : 0;
+  scrollToCard(target);
+  document.getElementById("jump-num").textContent = target + 1;
+}
+
+function updateTimer() {
+  const elapsed = Math.floor((Date.now() - STATE.startTime) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  document.getElementById("time").textContent =
+    `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+document.getElementById("submit-btn").addEventListener("click", submitTest);
+init();
+</script>
+</body>
+</html>

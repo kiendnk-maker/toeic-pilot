@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — TOEIC Pilot</title>
+<style>
+  :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --primary: #4f46e5;
+          --success: #10b981; --danger: #ef4444; --warn: #f59e0b;
+          --border: #334155; --text-muted: #94a3b8; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
+         min-height: 100vh; padding: 20px; }
+  h1 { font-size: 1.4rem; margin-bottom: 6px; }
+  .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .metric-card { background: var(--card); border-radius: 12px; padding: 18px; border: 1px solid var(--border); }
+  .metric-card h3 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .metric-card .value { font-size: 1.8rem; font-weight: 900; }
+  .metric-card .criterion { font-size: 0.8rem; margin-top: 4px; }
+  .go { color: var(--success); }
+  .modify { color: var(--danger); }
+  .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
+  .btn-primary { background: var(--primary); color: white; margin-right: 8px; }
+  .btn-success { background: var(--success); color: white; }
+  #raw-data { background: var(--card); border-radius: 12px; padding: 18px; border: 1px solid var(--border);
+              max-height: 500px; overflow-y: auto; margin-top: 16px; display: none; }
+  pre { font-size: 0.78rem; color: var(--text-muted); white-space: pre-wrap; }
+  .section-title { font-size: 1rem; font-weight: 700; margin: 20px 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 12px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; }
+  #loading { color: var(--text-muted); padding: 20px 0; }
+</style>
+</head>
+<body>
+<h1>📊 TOEIC Active Recall — Admin Dashboard</h1>
+<p class="subtitle">Feasibility metrics auto-computed from SQLite</p>
+
+<div style="margin-bottom:20px;">
+  <button class="btn btn-primary" onclick="loadMetrics()">🔄 Refresh Metrics</button>
+  <button class="btn btn-success" onclick="exportCSV()">📥 Export CSV</button>
+</div>
+
+<div class="grid" id="metrics-grid">
+  <div id="loading">Loading... click Refresh Metrics</div>
+</div>
+
+<div class="section-title">Recent Sessions</div>
+<div id="sessions-table"></div>
+
+<div class="section-title">Recent Attempts</div>
+<div id="attempts-table"></div>
+
+<div id="raw-data"><pre id="raw-json"></pre></div>
+
+<script>
+async function loadMetrics() {
+  try {
+    const [mRes, eRes] = await Promise.all([
+      fetch('/api/admin/metrics'),
+      fetch('/api/admin/export')
+    ]);
+    const metrics = await mRes.json();
+    const data = await eRes.json();
+    renderMetrics(metrics);
+    renderSessions(data.sessions || []);
+    renderAttempts((data.attempts || []).slice(-30));
+  } catch (e) {
+    document.getElementById("metrics-grid").innerHTML =
+      `<div class="metric-card"><span style="color:var(--danger)">Error: ${e.message}</span></div>`;
+  }
+}
+
+function renderMetrics(m) {
+  const items = [
+    { label: "Session Completion", value: (m.session_completion_rate * 100).toFixed(1) + "%", go: m.session_completion_go, criterion: "≥ 80%" },
+    { label: "Attrition Rate", value: (m.attrition_rate * 100).toFixed(1) + "%", go: m.attrition_go, criterion: "≤ 15%" },
+    { label: "Mean Latency", value: m.mean_latency_ms + " ms", go: m.latency_go, criterion: "< 200 ms" },
+    { label: "dB Gate Pass Rate", value: (m.db_pass_rate * 100).toFixed(1) + "%", go: m.db_pass_go, criterion: "≥ 85%" },
+    { label: "Cosine Score SD", value: m.cosine_sd.toFixed(4), go: m.cosine_go, criterion: "< 0.05" },
+    { label: "Bypass Rate", value: (m.bypass_rate * 100).toFixed(1) + "%", go: m.bypass_go, criterion: "≤ 20%" },
+  ];
+
+  document.getElementById("metrics-grid").innerHTML = items.map(item => `
+    <div class="metric-card">
+      <h3>${item.label}</h3>
+      <div class="value" style="color:${item.go ? 'var(--success)' : 'var(--danger)'}">${item.value}</div>
+      <div class="criterion ${item.go ? 'go' : 'modify'}">${item.go ? '✅ GO' : '❌ MODIFY'} — criterion: ${item.criterion}</div>
+    </div>
+  `).join("");
+}
+
+function renderSessions(sessions) {
+  if (!sessions.length) {
+    document.getElementById("sessions-table").innerHTML = "<p style='color:var(--text-muted)'>No sessions yet.</p>";
+    return;
+  }
+  const rows = sessions.slice(-20).reverse().map(s =>
+    `<tr><td>${s.timestamp?.slice(0,19)||''}</td><td>${s.participant_id}</td><td>Day ${s.day}</td><td>${s.score}/${s.total}</td></tr>`
+  ).join("");
+  document.getElementById("sessions-table").innerHTML = `
+    <table><thead><tr><th>Time</th><th>PID</th><th>Day</th><th>Score</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderAttempts(attempts) {
+  if (!attempts.length) {
+    document.getElementById("attempts-table").innerHTML = "<p style='color:var(--text-muted)'>No attempts yet.</p>";
+    return;
+  }
+  const rows = attempts.reverse().map(a =>
+    `<tr><td>${a.timestamp?.slice(0,19)||''}</td><td>${a.participant_id}</td><td>${a.question_id}</td>
+     <td>${a.db_pass?'✅':'❌'}</td><td>${a.cosine_score?.toFixed(2)||'-'}</td>
+     <td>${a.passed?'✅':'❌'}</td><td>${a.latency_ms}ms</td></tr>`
+  ).join("");
+  document.getElementById("attempts-table").innerHTML = `
+    <table><thead><tr><th>Time</th><th>PID</th><th>QID</th><th>dB</th><th>Cos</th><th>Pass</th><th>Latency</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function exportCSV() {
+  const res = await fetch('/api/admin/export');
+  const data = await res.json();
+  const att = data.attempts || [];
+  const header = "timestamp,participant_id,question_id,attempt_num,db_pass,stt_text,cosine_score,passed,bypass_used,latency_ms";
+  const rows = att.map(a =>
+    `"${a.timestamp||''}","${a.participant_id||''}","${a.question_id||''}",${a.attempt_num||0},${a.db_pass||0},"${(a.stt_text||'').replace(/"/g,'""')}",${a.cosine_score||0},${a.passed||0},${a.bypass_used||0},${a.latency_ms||0}`
+  );
+  const csv = header + "\n" + rows.join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "toeic_pilot_data.csv";
+  a.click();
+}
+
+// Auto-load on open
+loadMetrics();
+</script>
+</body>
+</html>

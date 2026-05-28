@@ -1,0 +1,692 @@
+/* ═══════════════════════════════════════════════════════════════
+   MONSTER SPRITES — CSS Box-Shadow Pixel Art + Elemental Auras
+   Technique: 1px element + box-shadow values = pixel sprites
+   No images, no external deps, pure CSS + inline SVG animations
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Shared Demon Stage ── */
+.demon-sprite-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 120px;
+  overflow: visible;
+}
+
+/* ── Pixel Art Base ── */
+.pixel-sprite {
+  position: relative;
+  width: 4px;
+  height: 4px;
+  image-rendering: pixelated;
+  transform: scale(5);
+  animation: spriteBob 2.8s ease-in-out infinite;
+}
+.pixel-sprite.hurt {
+  animation: spriteHurt 0.4s ease;
+}
+.pixel-sprite.evolved {
+  filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 20px currentColor);
+}
+@keyframes spriteBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes spriteHurt {
+  0%  { transform: translateX(0) scale(1);   filter: brightness(3); }
+  20% { transform: translateX(-8px) scale(1.1); }
+  40% { transform: translateX(7px);  }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px);  }
+  100%{ transform: translateX(0) scale(1);   filter: brightness(1); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FIRE DRAKE — Red/orange, floating embers, flame aura
+   ═══════════════════════════════════════════════════════════════ */
+.DrakeFire {
+  --df-color: #ff4400;
+  --df-glow:  rgba(255, 80, 0, 0.7);
+}
+.DrakeFire.pixel-sprite {
+  background: var(--df-color);
+  box-shadow:
+    /* body */
+    0 0 0 1px #ff6600,
+    /* neck + head */
+    -4px -8px 0 var(--df-color),
+    0px -8px 0 var(--df-color),
+    4px -8px 0 var(--df-color),
+    -4px -12px 0 var(--df-color),
+    0px -12px 0 var(--df-color),
+    4px -12px 0 var(--df-color),
+    /* eyes */
+    0px -12px 0 #ffff00,
+    /* flame breath (front) */
+    4px -4px 0 #ff9900,
+    8px -4px 0 #ff6600,
+    12px -4px 0 #ff4400,
+    8px -8px 0 #ffcc00,
+    12px -8px 0 #ff9900,
+    /* wings spread */
+    -12px -8px 0 #cc3300,
+    -8px -12px 0 #cc3300,
+    -16px -12px 0 #ff4400,
+    -20px -8px 0 #ff4400,
+    16px -8px 0 #cc3300,
+    20px -12px 0 #ff4400,
+    /* tail */
+    -4px 0 0 var(--df-color),
+    -8px 4px 0 #cc3300,
+    -12px 8px 0 #cc3300,
+    /* legs */
+    4px 4px 0 #cc3300,
+    -4px 4px 0 #cc3300,
+    /* claws */
+    8px 8px 0 #ff9900,
+    -8px 8px 0 #ff9900;
+  animation: spriteBob 2.8s ease-in-out infinite, fireAura 1.2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 6px var(--df-glow)) drop-shadow(0 0 14px var(--df-glow));
+}
+@keyframes fireAura {
+  0%   { filter: drop-shadow(0 0 6px var(--df-glow)) drop-shadow(0 0 12px rgba(255,80,0,0.4)); }
+  100% { filter: drop-shadow(0 0 12px var(--df-glow)) drop-shadow(0 0 24px rgba(255,80,0,0.7)); }
+}
+
+/* ── ICE WYRM — Cyan/blue, crystal shards, frost aura ── */
+.WyrmIce {
+  --wi-color: #00ddff;
+  --wi-glow:  rgba(0, 200, 255, 0.6);
+}
+.WyrmIce.pixel-sprite {
+  background: var(--wi-color);
+  box-shadow:
+    /* body coil */
+    0 0 0 1px #00aaff,
+    0px 4px 0 var(--wi-color),
+    -4px 8px 0 var(--wi-color),
+    4px 8px 0 var(--wi-color),
+    0px 12px 0 #00aaff,
+    -8px 16px 0 var(--wi-color),
+    8px 16px 0 var(--wi-color),
+    0px 20px 0 #00aaff,
+    -4px 24px 0 var(--wi-color),
+    4px 24px 0 var(--wi-color),
+    /* head (top) */
+    0px -4px 0 var(--wi-color),
+    -4px -8px 0 var(--wi-color),
+    0px -12px 0 var(--wi-color),
+    4px -8px 0 var(--wi-color),
+    /* ice crystal eyes */
+    -4px -8px 0 #ffffff,
+    /* crystal spikes on back */
+    -8px 0 0 #aaddff,
+    8px 4px 0 #aaddff,
+    -4px -16px 0 #aaddff,
+    4px -16px 0 #88ccff,
+    -12px 4px 0 #88ccff,
+    12px 8px 0 #88ccff,
+    /* fang teeth */
+    -2px -4px 0 #ccf5ff,
+    2px -4px 0 #ccf5ff,
+    /* wing membranes */
+    -16px -4px 0 #0077cc,
+    -20px -8px 0 #0077cc,
+    16px -4px 0 #0077cc,
+    20px -8px 0 #0077cc;
+  animation: spriteBob 3.5s ease-in-out infinite, iceAura 2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 6px var(--wi-glow)) drop-shadow(0 0 16px var(--wi-glow));
+}
+@keyframes iceAura {
+  0%   { filter: drop-shadow(0 0 4px var(--wi-glow)) drop-shadow(0 0 10px rgba(0,180,255,0.5)) brightness(1.1); }
+  100% { filter: drop-shadow(0 0 10px var(--wi-glow)) drop-shadow(0 0 22px rgba(100,220,255,0.8)) brightness(1.3); }
+}
+
+/* ── THUNDER BIRD — Yellow/electric, lightning bolts, storm aura ── */
+.BirdThunder {
+  --tb-color: #ffdd00;
+  --tb-glow:  rgba(255, 220, 0, 0.7);
+}
+.BirdThunder.pixel-sprite {
+  background: var(--tb-color);
+  box-shadow:
+    /* body */
+    0 0 0 1px #ffaa00,
+    /* torso */
+    0px 4px 0 var(--tb-color),
+    -4px 8px 0 var(--tb-color),
+    0px 8px 0 #ffaa00,
+    4px 8px 0 var(--tb-color),
+    0px 12px 0 var(--tb-color),
+    /* head */
+    0px -4px 0 var(--tb-color),
+    -4px -8px 0 var(--tb-color),
+    0px -8px 0 var(--tb-color),
+    4px -8px 0 var(--tb-color),
+    /* beak */
+    0px -12px 0 #ff8800,
+    /* electric eyes */
+    -4px -8px 0 #ffffff,
+    /* lightning wings spread wide */
+    -16px 0 0 #ffaa00,
+    -12px 4px 0 #ffcc00,
+    -20px -4px 0 #ffdd00,
+    -24px -8px 0 #ffaa00,
+    -16px -8px 0 #ffcc00,
+    -8px -12px 0 #ffaa00,
+    16px 0 0 #ffaa00,
+    12px 4px 0 #ffcc00,
+    20px -4px 0 #ffdd00,
+    24px -8px 0 #ffaa00,
+    16px -8px 0 #ffcc00,
+    8px -12px 0 #ffaa00,
+    /* tail feathers */
+    -4px 16px 0 #ff8800,
+    0px 20px 0 #ffaa00,
+    4px 16px 0 #ff8800,
+    /* lightning bolt accent (right wing tip) */
+    24px -4px 0 #ffffff,
+    /* claws */
+    -4px 12px 0 #ff8800,
+    4px 12px 0 #ff8800;
+  animation: spriteBob 2.2s ease-in-out infinite, thunderAura 0.8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px var(--tb-glow)) drop-shadow(0 0 18px rgba(255,200,0,0.5));
+}
+@keyframes thunderAura {
+  0%   { filter: drop-shadow(0 0 6px var(--tb-glow)) drop-shadow(0 0 14px rgba(255,220,0,0.4)); }
+  50%  { filter: drop-shadow(0 0 14px var(--tb-glow)) drop-shadow(0 0 28px rgba(255,255,100,0.9)) brightness(1.4); }
+  100% { filter: drop-shadow(0 0 6px var(--tb-glow)) drop-shadow(0 0 14px rgba(255,220,0,0.4)); }
+}
+
+/* ── SHADOW FLAME — Purple/magenta, ghost flame aura ── */
+.FlameShadow {
+  --sf-color: #cc00ff;
+  --sf-glow:  rgba(180, 0, 255, 0.7);
+}
+.FlameShadow.pixel-sprite {
+  background: var(--sf-color);
+  box-shadow:
+    /* ghostly body */
+    0 0 0 1px #9900cc,
+    /* main body */
+    0px 4px 0 var(--sf-color),
+    -4px 8px 0 var(--sf-color),
+    0px 8px 0 #9900cc,
+    4px 8px 0 var(--sf-color),
+    0px 12px 0 var(--sf-color),
+    /* neck */
+    0px -4px 0 var(--sf-color),
+    /* head */
+    0px -8px 0 var(--sf-color),
+    -4px -12px 0 var(--sf-color),
+    0px -12px 0 #9900cc,
+    4px -12px 0 var(--sf-color),
+    /* flaming eyes */
+    -4px -12px 0 #ff00ff,
+    /* wisps rising (top of head) */
+    -4px -20px 0 #ff44ff,
+    0px -16px 0 #ff00ff,
+    4px -20px 0 #ff44ff,
+    0px -24px 0 #ffaaff,
+    /* ghost tail / flame trail */
+    -4px 16px 0 #9900cc,
+    -8px 20px 0 #cc00ff,
+    -4px 24px 0 #aa00dd,
+    0px 28px 0 #ff44ff,
+    /* ethereal arms */
+    -12px 8px 0 #9900cc,
+    12px 8px 0 #9900cc,
+    -16px 4px 0 #cc00ff,
+    16px 4px 0 #cc00ff;
+  animation: spriteBob 3s ease-in-out infinite, shadowAura 1.5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 6px var(--sf-glow)) drop-shadow(0 0 14px var(--sf-glow));
+}
+@keyframes shadowAura {
+  0%   { filter: drop-shadow(0 0 4px var(--sf-glow)) drop-shadow(0 0 10px rgba(150,0,200,0.4)) opacity(0.85); }
+  100% { filter: drop-shadow(0 0 12px var(--sf-glow)) drop-shadow(0 0 26px rgba(200,0,255,0.8)) opacity(1.1); }
+}
+
+/* ── GRAMMAR LEVIATHAN — Green/teal, swirling water aura ── */
+.LeviathanWater {
+  --lw-color: #00ffaa;
+  --lw-glow:  rgba(0, 200, 150, 0.6);
+}
+.LeviathanWater.pixel-sprite {
+  background: var(--lw-color);
+  box-shadow:
+    /* serpent body wave */
+    0 0 0 1px #00cc88,
+    0px 4px 0 var(--lw-color),
+    -8px 4px 0 var(--lw-color),
+    8px 4px 0 var(--lw-color),
+    0px 8px 0 #00cc88,
+    -12px 8px 0 var(--lw-color),
+    12px 8px 0 var(--lw-color),
+    0px 12px 0 var(--lw-color),
+    -8px 12px 0 #00cc88,
+    8px 12px 0 #00cc88,
+    0px 16px 0 var(--lw-color),
+    -4px 16px 0 #00cc88,
+    4px 16px 0 #00cc88,
+    /* head crest */
+    0px -4px 0 var(--lw-color),
+    -4px -8px 0 var(--lw-color),
+    0px -8px 0 #00cc88,
+    4px -8px 0 var(--lw-color),
+    /* eye */
+    -4px -8px 0 #00ffff,
+    /* water wave fins */
+    -16px 0 0 #009977,
+    -20px 4px 0 #00ccaa,
+    16px 0 0 #009977,
+    20px 4px 0 #00ccaa,
+    /* scales */
+    -4px 0 0 #00ddbb,
+    4px 0 0 #00ddbb;
+  animation: spriteBob 4s ease-in-out infinite, waterAura 2.5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 6px var(--lw-glow)) drop-shadow(0 0 14px var(--lw-glow));
+}
+@keyframes waterAura {
+  0%   { filter: drop-shadow(0 0 4px var(--lw-glow)) drop-shadow(0 0 10px rgba(0,180,160,0.4)); }
+  100% { filter: drop-shadow(0 0 10px var(--lw-glow)) drop-shadow(0 0 20px rgba(0,255,200,0.7)); }
+}
+
+/* ── OVERDRIVE EVOLUTION — Pulsing elemental aura overlay ── */
+.demon-sprite-wrap.evolved .pixel-sprite {
+  animation: spriteBob 1.5s ease-in-out infinite, overdriveAura 0.6s ease-in-out infinite alternate !important;
+}
+@keyframes overdriveAura {
+  0%   { transform: scale(1) translateY(0);   filter: brightness(1)   drop-shadow(0 0 10px currentColor) drop-shadow(0 0 25px currentColor); }
+  50%  { transform: scale(1.15) translateY(-6px); filter: brightness(1.6) drop-shadow(0 0 20px currentColor) drop-shadow(0 0 40px currentColor); }
+  100% { transform: scale(1) translateY(0);   filter: brightness(1)   drop-shadow(0 0 10px currentColor) drop-shadow(0 0 25px currentColor); }
+}
+
+/* ── Floating ember/frost/bolt particles around sprite ── */
+.elem-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: elemFloat 2s ease-in-out infinite;
+}
+.elem-particle.fire  { background: #ff6600; box-shadow: 0 0 6px #ff4400, 0 0 12px #ff2200; animation-duration: 1.8s; }
+.elem-particle.ice   { background: #88ddff; box-shadow: 0 0 6px #00aaff, 0 0 12px #0066ff; animation-duration: 2.4s; }
+.elem-particle.elec  { background: #ffee00; box-shadow: 0 0 8px #ffaa00, 0 0 16px #ffff00; animation-duration: 0.9s; animation-name: elemFloatFast; }
+.elem-particle.void  { background: #cc00ff; box-shadow: 0 0 6px #9900cc, 0 0 12px #ff00ff; animation-duration: 2.2s; }
+.elem-particle.water { background: #00ffcc; box-shadow: 0 0 6px #00ccaa, 0 0 12px #00aaff; animation-duration: 3s; }
+.elem-particle.crystal { background: #ddf8ff; box-shadow: 0 0 8px #88ddff, 0 0 16px #00ffff; animation-duration: 2.6s; animation-name: crystalFloat; }
+
+@keyframes crystalFloat {
+  0%   { transform: translateY(0) translateX(0) scale(1.2) rotate(0deg);   opacity: 0.8; }
+  33%  { transform: translateY(-15px) translateX(10px) scale(1.5) rotate(120deg); opacity: 1; }
+  66%  { transform: translateY(-30px) translateX(-6px) scale(0.9) rotate(240deg); opacity: 0.6; }
+  100% { transform: translateY(-50px) translateX(4px) scale(0.4) rotate(360deg); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ADVANCED ELEMENTAL ANIMATIONS
+   Multi-layered fire breathing, ice crystal shimmer,
+   lightning crack, shadow wisps, ambient stage effects
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── FIRE BREATHING — Multi-layer pseudo-flame on DrakeFire ── */
+.DrakeFire.pixel-sprite::before,
+.DrakeFire.pixel-sprite::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.DrakeFire.pixel-sprite::before {
+  /* inner flame — hot white/yellow */
+  box-shadow:
+    4px -4px 0 #ffee00,
+    8px -4px 0 #ffcc00,
+    4px -8px 0 #ffffaa,
+    8px -8px 0 #ffee00,
+    12px -4px 0 #ff9900,
+    12px -8px 0 #ffcc00,
+    16px -4px 0 #ff6600,
+    12px -12px 0 #ff8800,
+    16px -8px 0 #ff6600,
+    20px -8px 0 #ff4400,
+    16px -12px 0 #ff6600,
+    20px -12px 0 #ff3300;
+  animation: fireBreath 1.1s ease-in-out infinite alternate;
+  filter: blur(0.5px);
+}
+.DrakeFire.pixel-sprite::after {
+  /* outer flame — orange/red */
+  box-shadow:
+    4px -4px 0 #ff6600,
+    8px -4px 0 #ff4400,
+    8px -8px 0 #ff6600,
+    12px -4px 0 #ff3300,
+    12px -8px 0 #ff4400,
+    16px -4px 0 #ff2200,
+    16px -8px 0 #ff3300,
+    20px -8px 0 #ff2200,
+    20px -12px 0 #ff1100,
+    24px -8px 0 #ff2200,
+    24px -12px 0 #cc1100;
+  animation: fireBreathOuter 1.6s ease-in-out infinite alternate;
+  opacity: 0.7;
+  filter: blur(1px);
+}
+@keyframes fireBreath {
+  0%   { transform: translateY(0) scale(1);   opacity: 0.9; }
+  50%  { transform: translateY(-3px) scale(1.15); opacity: 1; }
+  100% { transform: translateY(-6px) scale(1.05); opacity: 0.8; }
+}
+@keyframes fireBreathOuter {
+  0%   { transform: translateY(0) scale(1) translateX(0);    opacity: 0.6; }
+  40%  { transform: translateY(-2px) scale(1.2) translateX(2px);  opacity: 0.8; }
+  100% { transform: translateY(-8px) scale(1.3) translateX(-1px); opacity: 0.4; }
+}
+
+/* ── ICE SHIMMER — Sparkle/crystal refraction on WyrmIce ── */
+.WyrmIce.pixel-sprite::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow:
+    -4px -16px 0 #ffffff,
+    0px -16px 0 #ccf5ff,
+    4px -16px 0 #ffffff,
+    -8px -8px 0 #aaeeff,
+    8px -8px 0 #aaeeff,
+    -12px 0 0 #88ddff,
+    12px 0 0 #88ddff,
+    0px -20px 0 #ffffff,
+    -4px -20px 0 #ddf8ff,
+    4px -20px 0 #ddf8ff;
+  animation: iceShimmer 3s ease-in-out infinite;
+  filter: blur(0.5px);
+}
+@keyframes iceShimmer {
+  0%, 100% { opacity: 0.4;  filter: brightness(1) blur(0.5px); }
+  20%       { opacity: 1;   filter: brightness(2) blur(0px); }
+  40%       { opacity: 0.6; filter: brightness(1.3) blur(0.5px); }
+  60%       { opacity: 0.9; filter: brightness(1.8) blur(0.3px); }
+  80%       { opacity: 0.3; filter: brightness(1) blur(0.5px); }
+}
+
+/* ── THUNDER CRACK — Rapid lightning flicker on BirdThunder ── */
+.BirdThunder.pixel-sprite::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  background: #ffee00;
+  box-shadow:
+    24px -4px 0 #ffffff,
+    28px -8px 0 #ffee00,
+    24px -12px 0 #ffcc00,
+    28px -16px 0 #ffffff,
+    32px -12px 0 #ffee00,
+    28px -8px 0 #ffdd00;
+  animation: thunderCrack 2.5s steps(1) infinite;
+}
+@keyframes thunderCrack {
+  0%,  85%, 100% { opacity: 0; }
+  86%             { opacity: 1; }
+  88%             { opacity: 0.3; }
+  89%             { opacity: 1; }
+  91%             { opacity: 0; }
+}
+.BirdThunder.pixel-sprite::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: #ffaa00;
+  box-shadow:
+    -4px 16px 0 #ffee00,
+    0px 20px 0 #ffdd00,
+    4px 16px 0 #ffee00,
+    8px 20px 0 #ffcc00,
+    0px 24px 0 #ffaa00;
+  animation: thunderCrack 3.1s steps(1) infinite;
+  animation-delay: 1.2s;
+  opacity: 0.7;
+  filter: blur(0.5px);
+}
+
+/* ── SHADOW WISP — Ghostly rising wisps on FlameShadow ── */
+.FlameShadow.pixel-sprite::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow:
+    -4px -20px 0 #ff44ff,
+    0px -24px 0 #ff88ff,
+    4px -20px 0 #ff44ff,
+    -4px -28px 0 #ddaaff,
+    0px -32px 0 #ffaaff,
+    4px -28px 0 #ddaaff,
+    -8px -24px 0 #cc00ff,
+    8px -24px 0 #cc00ff,
+    -8px -16px 0 #aa00dd,
+    8px -16px 0 #aa00dd;
+  animation: shadowWisp 2.8s ease-in-out infinite;
+  filter: blur(1px);
+}
+@keyframes shadowWisp {
+  0%   { transform: translateY(0) scale(1);    opacity: 0; }
+  10%  { opacity: 0.9; }
+  50%  { transform: translateY(-10px) scale(1.1); opacity: 0.7; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-20px) scale(0.8); opacity: 0; }
+}
+.FlameShadow.pixel-sprite::after {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow:
+    -4px 16px 0 #aa00dd,
+    -8px 20px 0 #cc00ff,
+    -4px 24px 0 #9900cc,
+    -8px 28px 0 #bb00ee,
+    0px 32px 0 #ff44ff,
+    4px 28px 0 #aa00dd,
+    4px 24px 0 #cc00ff,
+    8px 20px 0 #9900cc,
+    8px 16px 0 #aa00dd;
+  animation: shadowWisp 2s ease-in-out infinite alternate-reverse;
+  opacity: 0.6;
+  filter: blur(1.5px);
+}
+
+/* ── CRYSTAL PRISM — Rotating spectral highlights on CrystalGolem ── */
+.CrystalGolem.pixel-sprite::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow:
+    -4px -16px 0 #ffffff,
+    0px -16px 0 #eeffff,
+    4px -16px 0 #ffffff,
+    -8px -12px 0 #ccf5ff,
+    8px -12px 0 #ccf5ff,
+    -4px -20px 0 #ffffff,
+    4px -20px 0 #ddf8ff,
+    -8px -20px 0 #aaddff,
+    8px -20px 0 #aaddff,
+    0px -24px 0 #ffffff;
+  animation: prismRotate 4s linear infinite;
+  filter: blur(0.5px);
+}
+@keyframes prismRotate {
+  0%   { opacity: 0.4; filter: brightness(1) blur(0.5px) hue-rotate(0deg); }
+  25%  { opacity: 1;   filter: brightness(2) blur(0px)   hue-rotate(30deg); }
+  50%  { opacity: 0.6; filter: brightness(1.5) blur(0.5px) hue-rotate(60deg); }
+  75%  { opacity: 0.9; filter: brightness(1.8) blur(0.3px) hue-rotate(90deg); }
+  100% { opacity: 0.4; filter: brightness(1) blur(0.5px) hue-rotate(0deg); }
+}
+.CrystalGolem.pixel-sprite::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #00ffff;
+  border-radius: 50%;
+  box-shadow:
+    -8px -4px 0 #88ddff,
+    8px -4px 0 #88ddff,
+    -12px 4px 0 #aaddff,
+    12px 4px 0 #aaddff,
+    -4px 16px 0 #6699cc,
+    4px 16px 0 #6699cc;
+  animation: prismRotate 6s linear infinite reverse;
+  opacity: 0.5;
+}
+
+/* ── LEVIATHAN WATER RIPPLE ── */
+.LeviathanWater.pixel-sprite::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow:
+    -4px -4px 0 #00ffff,
+    4px -4px 0 #00dddd,
+    0px -8px 0 #00ffff,
+    -8px 0 0 #00ddaa,
+    8px 0 0 #00ddaa,
+    -16px 4px 0 #00ccaa,
+    16px 4px 0 #00ccaa,
+    0px 4px 0 #00eedd;
+  animation: waterRipple 3s ease-in-out infinite;
+  filter: blur(0.5px);
+}
+@keyframes waterRipple {
+  0%   { transform: translateY(0) scale(1);    opacity: 0.6; }
+  50%  { transform: translateY(-4px) scale(1.1); opacity: 1; }
+  100% { transform: translateY(0) scale(1);    opacity: 0.6; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ELEMENTAL BURST — Massive particle explosion on demonHurt
+   12 particles flying outward in elemental colors
+   ═══════════════════════════════════════════════════════════════ */
+.elem-burst { position: absolute; pointer-events: none; z-index: 10; }
+.elem-burst .burst-particle {
+  position: absolute;
+  border-radius: 50%;
+  animation: burstFly 0.8s ease-out forwards;
+}
+@keyframes burstFly {
+  0%   { transform: translate(0, 0) scale(1);   opacity: 1; }
+  100% { transform: translate(var(--bx), var(--by)) scale(0.1); opacity: 0; }
+}
+.burst-fire  { background: #ff6600; box-shadow: 0 0 8px #ff4400, 0 0 16px #ff2200; }
+.burst-ice   { background: #88ddff; box-shadow: 0 0 8px #00aaff, 0 0 16px #0066ff; }
+.burst-elec  { background: #ffee00; box-shadow: 0 0 10px #ffaa00, 0 0 20px #ffff00; }
+.burst-void  { background: #cc00ff; box-shadow: 0 0 8px #9900cc, 0 0 16px #ff00ff; }
+.burst-water { background: #00ffcc; box-shadow: 0 0 8px #00ccaa, 0 0 16px #00aaff; }
+.burst-crys  { background: #ddf8ff; box-shadow: 0 0 10px #88ddff, 0 0 20px #00ffff; }
+
+/* ── AMBIENT GROUND GLOW on demon-stage ── */
+.demon-stage::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,240,255,0.15) 0%, transparent 70%);
+  animation: groundPulse 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes groundPulse {
+  0%, 100% { opacity: 0.4; transform: translateX(-50%) scaleX(1); }
+  50%       { opacity: 0.8; transform: translateX(-50%) scaleX(1.2); }
+}
+
+@keyframes elemFloat {
+  0%   { transform: translateY(0) translateX(0) scale(1);   opacity: 0.7; }
+  33%  { transform: translateY(-20px) translateX(8px) scale(1.3); opacity: 1; }
+  66%  { transform: translateY(-35px) translateX(-4px) scale(0.8); opacity: 0.5; }
+  100% { transform: translateY(-55px) translateX(6px) scale(0.3); opacity: 0; }
+}
+@keyframes elemFloatFast {
+  0%   { transform: translateY(0) translateX(0) scale(1.5);   opacity: 1; }
+  50%  { transform: translateY(-30px) translateX(-10px) scale(0.5); opacity: 0.8; }
+  100% { transform: translateY(-60px) translateX(5px) scale(0.1); opacity: 0; }
+}
+
+/* ── CRYSTAL GOLEM — White/cyan, prism refraction, crystal aura ── */
+.CrystalGolem {
+  --cg-color: #c8f0ff;
+  --cg-glow:  rgba(150, 220, 255, 0.7);
+}
+.CrystalGolem.pixel-sprite {
+  background: var(--cg-color);
+  box-shadow:
+    /* chunky golem body */
+    0 0 0 1px #88ccff,
+    /* torso block */
+    0px 0 0 var(--cg-color),
+    -4px 4px 0 #aaddff,
+    0px 4px 0 #88ccff,
+    4px 4px 0 #aaddff,
+    /* hip block */
+    -4px 8px 0 #88ccff,
+    0px 8px 0 var(--cg-color),
+    4px 8px 0 #88ccff,
+    /* shoulders */
+    -8px 0 0 #aaddff,
+    8px 0 0 #aaddff,
+    /* head */
+    0px -4px 0 var(--cg-color),
+    -4px -8px 0 #ddeeff,
+    0px -8px 0 var(--cg-color),
+    4px -8px 0 #ddeeff,
+    /* glowing crystal eyes */
+    -4px -8px 0 #00ffff,
+    /* crystal crown spikes */
+    -4px -12px 0 #ffffff,
+    0px -12px 0 #aaddff,
+    4px -12px 0 #ffffff,
+    -8px -8px 0 #aaddff,
+    8px -8px 0 #aaddff,
+    /* arms */
+    -12px 4px 0 #88ccff,
+    12px 4px 0 #88ccff,
+    -12px 0 0 #aaddff,
+    12px 0 0 #aaddff,
+    /* legs */
+    -4px 12px 0 #88ccff,
+    4px 12px 0 #88ccff,
+    -4px 16px 0 #6699cc,
+    4px 16px 0 #6699cc,
+    /* crystal shard accents */
+    -8px -4px 0 #ffffff,
+    8px -4px 0 #ffffff,
+    0px -16px 0 #ccf5ff;
+  animation: spriteBob 4.5s ease-in-out infinite, crystalAura 2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 6px var(--cg-glow)) drop-shadow(0 0 16px var(--cg-glow));
+}
+@keyframes crystalAura {
+  0%   { filter: drop-shadow(0 0 4px var(--cg-glow)) drop-shadow(0 0 10px rgba(150,200,255,0.5)) brightness(1); }
+  50%  { filter: drop-shadow(0 0 12px var(--cg-glow)) drop-shadow(0 0 26px rgba(200,240,255,0.9)) brightness(1.5) saturate(1.2); }
+  100% { filter: drop-shadow(0 0 4px var(--cg-glow)) drop-shadow(0 0 10px rgba(150,200,255,0.5)) brightness(1); }
+}

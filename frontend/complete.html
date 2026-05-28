@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session Complete — TOEIC Pilot</title>
+<style>
+  :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --success: #10b981; --primary: #4f46e5; --text-muted: #94a3b8; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
+         min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .card { background: var(--card); border-radius: 16px; padding: 40px; max-width: 440px; width: 90%;
+          text-align: center; box-shadow: 0 4px 32px rgba(0,0,0,0.5); }
+  .emoji { font-size: 4rem; margin-bottom: 12px; }
+  h1 { font-size: 1.4rem; margin-bottom: 8px; }
+  .stats { display: flex; justify-content: center; gap: 24px; margin: 20px 0; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 2rem; font-weight: 900; color: var(--success); }
+  .stat .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .btn { display: inline-block; padding: 12px 28px; border-radius: 10px; border: none;
+         font-size: 0.95rem; font-weight: 700; cursor: pointer; text-decoration: none;
+         background: var(--primary); color: white; margin-top: 16px; }
+  .info { font-size: 0.82rem; color: var(--text-muted); margin-top: 16px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="emoji" id="emoji">🎉</div>
+  <h1>Session Complete!</h1>
+  <div class="stats">
+    <div class="stat">
+      <div class="num" id="final-score">0</div>
+      <div class="label">Score</div>
+    </div>
+    <div class="stat">
+      <div class="num" id="max-streak">0</div>
+      <div class="label">Max Streak</div>
+    </div>
+    <div class="stat">
+      <div class="num" id="correct-first">0</div>
+      <div class="label">1st Try</div>
+    </div>
+  </div>
+  <p style="color:var(--text-muted);font-size:0.9rem;" id="msg"></p>
+  <a href="/static/index.html" class="btn">Next Session →</a>
+  <div class="info">
+    Your data has been logged for the pilot study.<br>
+    Please return tomorrow for your next daily session.
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const score = parseInt(params.get("score")) || 0;
+const total = parseInt(params.get("total")) || 10;
+const streak = parseInt(params.get("streak")) || 0;
+const correct = parseInt(params.get("correct")) || 0;
+const group = params.get("group") || "B";
+
+document.getElementById("final-score").textContent = score;
+document.getElementById("max-streak").textContent = streak;
+document.getElementById("correct-first").textContent = correct;
+
+const emoji = document.getElementById("emoji");
+const msg = document.getElementById("msg");
+
+if (correct >= 8) {
+  emoji.textContent = "🏆";
+  msg.textContent = "Outstanding! You got most questions right on the first try.";
+} else if (correct >= 5) {
+  emoji.textContent = "👍";
+  msg.textContent = "Good progress! Keep practicing to improve.";
+} else {
+  emoji.textContent = "💪";
+  msg.textContent = "Keep going! The active recall method will help you improve over time.";
+}
+
+if (group === "A") {
+  msg.textContent += " (Control group — passive reading)";
+}
+</script>
+</body>
+</html>

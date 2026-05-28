@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Active Recall — Pilot Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0d0f;--surface:#131316;--surface2:#1a1a1f;--border:rgba(255,255,255,0.07);--text:#ededf0;--textMuted:#8a8a96;--accent:#7c6af7;--accentDim:rgba(124,106,247,0.15);--accentHover:#9b8fff;--success:#4ade80;--successDim:rgba(74,222,128,0.12);--danger:#f87171;--dangerDim:rgba(248,113,113,0.12);--warning:#fbbf24;--radius:8px;--font:'Geist',sans-serif;--mono:'Geist Mono',monospace}
+html{font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;max-width:460px;width:92%;box-shadow:0 4px 32px rgba(0,0,0,0.5)}
+h1{font-size:1.3rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.sub{font-size:0.82rem;color:var(--textMuted);margin-bottom:1.5rem}
+label{display:block;font-size:0.78rem;font-weight:500;color:var(--textMuted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;margin-top:14px}
+input,select{width:100%;padding:10px 12px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-family:var(--font);font-size:0.9rem}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+.row{display:flex;gap:12px}.row>*{flex:1}
+.radio-group{display:flex;gap:12px;margin-top:4px}
+.radio-group label{display:flex;align-items:center;gap:6px;font-size:0.88rem;color:var(--text);text-transform:none;letter-spacing:0;margin:0;cursor:pointer;padding:10px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);flex:1;transition:all 0.15s}
+.radio-group label:hover{border-color:var(--accent)}
+.radio-group input[type=radio]{accent-color:var(--accent);width:14px;height:14px}
+.radio-group label:has(input:checked){border-color:var(--accent);background:var(--accentDim)}
+.btn{display:block;width:100%;padding:12px;border-radius:8px;border:none;font-family:var(--font);font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.15s;margin-top:20px}
+.btnPrimary{background:var(--accent);color:#fff}
+.btnPrimary:hover{background:var(--accentHover)}
+.info{font-size:0.75rem;color:var(--textMuted);margin-top:16px;line-height:1.5;padding:12px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)}
+.info strong{color:var(--warning)}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>TOEIC Active Recall</h1>
+  <p class="sub">Pilot Study — Chihlee University of Technology</p>
+
+  <label for="pid">Participant ID</label>
+  <input type="text" id="pid" value="P001" maxlength="10" placeholder="e.g. P001">
+
+  <label>Group</label>
+  <div class="radio-group">
+    <label><input type="radio" name="group" value="B" checked> Group B — Active Recall</label>
+    <label><input type="radio" name="group" value="A"> Group A — Control</label>
+  </div>
+
+  <div class="row">
+    <div><label for="day">Day</label>
+      <select id="day">
+        <option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option>
+        <option value="4">Day 4</option><option value="5">Day 5</option><option value="6">Day 6</option>
+        <option value="7">Day 7</option><option value="8">Day 8</option><option value="9">Day 9</option>
+        <option value="10">Day 10</option><option value="11">Day 11</option><option value="12">Day 12</option>
+      </select></div>
+    <div><label for="mode">Mode</label>
+      <select id="mode">
+        <option value="practice">Practice (10 Qs)</option>
+        <option value="pretest">Pre-test (30 Qs)</option>
+        <option value="posttest">Post-test (30 Qs)</option>
+      </select></div>
+  </div>
+
+  <button class="btn btnPrimary" onclick="start()">Start Session →</button>
+
+  <div class="info">
+    <strong>Group B:</strong> Wrong answer → speak the explanation into mic → AI checks pronunciation.<br>
+    <strong>Group A:</strong> Wrong answer → read the explanation.<br>
+    <strong>Requirements:</strong> Chrome/Edge + microphone for Group B.
+  </div>
+</div>
+
+<script>
+function start(){
+  const pid = document.getElementById('pid').value.trim()||'P001';
+  const group = document.querySelector('input[name="group"]:checked').value;
+  const day = document.getElementById('day').value;
+  const mode = document.getElementById('mode').value;
+  if(mode==='pretest'||mode==='posttest'){
+    window.location.href=`/static/test.html?pid=${pid}&group=${group}&day=${day}&mode=${mode}`;
+  } else {
+    window.location.href=`/static/game.html?pid=${pid}&group=${group}&day=${day}`;
+  }
+}
+</script>
+</body>
+</html>
