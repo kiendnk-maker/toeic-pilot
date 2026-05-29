@@ -2,85 +2,385 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TOEIC Active Recall — Pilot Study</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TOEIC Pilot — Active Recall System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0d0d0f;--surface:#131316;--surface2:#1a1a1f;--border:rgba(255,255,255,0.07);--text:#ededf0;--textMuted:#8a8a96;--accent:#7c6af7;--accentDim:rgba(124,106,247,0.15);--accentHover:#9b8fff;--success:#4ade80;--successDim:rgba(74,222,128,0.12);--danger:#f87171;--dangerDim:rgba(248,113,113,0.12);--warning:#fbbf24;--radius:8px;--font:'Geist',sans-serif;--mono:'Geist Mono',monospace}
-html{font-size:15px}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;max-width:460px;width:92%;box-shadow:0 4px 32px rgba(0,0,0,0.5)}
-h1{font-size:1.3rem;font-weight:600;color:var(--text);margin-bottom:4px}
-.sub{font-size:0.82rem;color:var(--textMuted);margin-bottom:1.5rem}
-label{display:block;font-size:0.78rem;font-weight:500;color:var(--textMuted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;margin-top:14px}
-input,select{width:100%;padding:10px 12px;border-radius:6px;background:var(--surface2);color:var(--text);border:1px solid var(--border);font-family:var(--font);font-size:0.9rem}
-input:focus,select:focus{outline:none;border-color:var(--accent)}
-.row{display:flex;gap:12px}.row>*{flex:1}
-.radio-group{display:flex;gap:12px;margin-top:4px}
-.radio-group label{display:flex;align-items:center;gap:6px;font-size:0.88rem;color:var(--text);text-transform:none;letter-spacing:0;margin:0;cursor:pointer;padding:10px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);flex:1;transition:all 0.15s}
-.radio-group label:hover{border-color:var(--accent)}
-.radio-group input[type=radio]{accent-color:var(--accent);width:14px;height:14px}
-.radio-group label:has(input:checked){border-color:var(--accent);background:var(--accentDim)}
-.btn{display:block;width:100%;padding:12px;border-radius:8px;border:none;font-family:var(--font);font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.15s;margin-top:20px}
-.btnPrimary{background:var(--accent);color:#fff}
-.btnPrimary:hover{background:var(--accentHover)}
-.info{font-size:0.75rem;color:var(--textMuted);margin-top:16px;line-height:1.5;padding:12px;background:var(--surface2);border-radius:6px;border:1px solid var(--border)}
-.info strong{color:var(--warning)}
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --glass: rgba(255,255,255,0.04);
+  --glass-hover: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border-focus: rgba(124,106,247,0.5);
+  
+  --accent: #7c6af7;
+  --accent-glow: rgba(124,106,247,0.25);
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #06b6d4;
+  
+  --text: #f0f0f5;
+  --text2: #8888a0;
+  
+  --font: 'Inter', system-ui, sans-serif;
+  --font-d: 'Orbitron', monospace;
+  
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh; min-height: 100dvh;
+  background: var(--bg);
+  font-family: var(--font);
+  color: var(--text);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+/* Background Effects */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2;
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(124,106,247,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(6,182,212,0.05) 0%, transparent 50%);
+  animation: bgPulse 15s ease-in-out infinite alternate;
+}
+@keyframes bgPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+.particles {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+}
+.particle {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: floatUp linear infinite;
+  opacity: 0;
+}
+@keyframes floatUp {
+  0% { transform: translateY(100vh); opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(-100px); opacity: 0; }
+}
+
+/* Branding */
+.brand { text-align: center; margin-bottom: 30px; animation: slideDown 0.6s var(--ease) forwards; opacity: 0; transform: translateY(-20px); }
+.brand h1 {
+  font-family: var(--font-d);
+  font-size: 2rem; font-weight: 900;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #fff, #9b8fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(124,106,247,0.4);
+  margin-bottom: 8px;
+}
+.brand p { color: var(--info); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-d); }
+
+/* Main Card */
+.card {
+  width: 100%; max-width: 400px;
+  background: var(--glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  animation: slideUp 0.6s var(--ease) 0.1s forwards;
+  opacity: 0; transform: translateY(20px);
+}
+
+@keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+/* Form Elements */
+.form-group { margin-bottom: 20px; }
+.form-group label {
+  display: block; font-size: 0.75rem; color: var(--text2);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+  font-family: var(--font-d);
+}
+
+.input-text, .select-css {
+  width: 100%; padding: 14px 16px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text); font-family: var(--font); font-size: 1rem;
+  transition: all 0.3s var(--ease);
+  outline: none;
+}
+.input-text:focus, .select-css:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 15px var(--accent-glow);
+  background: rgba(0,0,0,0.4);
+}
+.select-css { appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="%238888a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+.select-css option { background: var(--bg2); color: var(--text); }
+
+/* Toggle Switch */
+.toggle-group {
+  display: flex; background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 4px; position: relative;
+}
+.toggle-btn {
+  flex: 1; text-align: center; padding: 10px;
+  color: var(--text2); font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; position: relative; z-index: 1;
+  transition: color 0.3s var(--ease);
+}
+.toggle-btn.active { color: #fff; font-weight: 600; }
+.toggle-slider {
+  position: absolute; top: 4px; bottom: 4px; width: calc(50% - 4px);
+  background: var(--glass-hover);
+  border-radius: 8px; border: 1px solid var(--border-focus);
+  transition: transform 0.3s var(--ease);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+#groupToggle[data-active="B"] .toggle-slider { transform: translateX(100%); }
+
+/* Start Button */
+.btn-start {
+  width: 100%; padding: 16px; margin-top: 10px;
+  background: linear-gradient(135deg, var(--accent), #9b8fff);
+  border: none; border-radius: 14px;
+  color: #fff; font-family: var(--font-d); font-size: 1rem;
+  font-weight: 700; letter-spacing: 2px;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: all 0.3s var(--ease);
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+.btn-start::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmerBtn 3s infinite;
+}
+@keyframes shimmerBtn { 100% { left: 200%; } }
+.btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,106,247,0.4); }
+.btn-start:active { transform: translateY(1px); }
+
+/* Quick Resume */
+.resume-btn {
+  width: 100%; padding: 12px; margin-bottom: 20px;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 12px;
+  color: var(--success); font-family: var(--font-d); font-size: 0.8rem;
+  letter-spacing: 1px; cursor: pointer;
+  transition: all 0.2s; display: none;
+  animation: slideDown 0.4s var(--ease);
+}
+.resume-btn:hover { background: rgba(34,197,94,0.2); box-shadow: 0 0 15px rgba(34,197,94,0.2); }
+
+/* Info Accordion */
+.info-wrap { margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px; }
+.info-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  color: var(--text2); font-size: 0.8rem; cursor: pointer;
+  user-select: none; transition: color 0.2s;
+}
+.info-toggle:hover { color: var(--text); }
+.info-content {
+  overflow: hidden; height: 0; transition: height 0.4s var(--ease);
+  font-size: 0.8rem; color: var(--text2); line-height: 1.6;
+}
+.info-content.open { height: 120px; }
+.info-box { padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 10px; }
+.info-box b { color: var(--info); }
+.info-box span { color: var(--danger); }
+
+/* Browser Warning */
+.browser-warn {
+  display: none; width: 100%; max-width: 400px;
+  margin-top: 20px; padding: 12px;
+  background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 12px; color: var(--warning);
+  font-size: 0.8rem; text-align: center;
+}
+
 </style>
 </head>
 <body>
+
+<div class="particles" id="particles"></div>
+
+<div class="brand">
+  <h1>TOEIC PILOT</h1>
+  <p>Active Recall System</p>
+</div>
+
 <div class="card">
-  <h1>TOEIC Active Recall</h1>
-  <p class="sub">Pilot Study — Chihlee University of Technology</p>
+  <button id="resumeBtn" class="resume-btn" onclick="resumeSession()">CONTINUE DAY X ➔</button>
 
-  <label for="pid">Participant ID</label>
-  <input type="text" id="pid" value="P001" maxlength="10" placeholder="e.g. P001">
+  <form id="setupForm" onsubmit="handleStart(event)">
+    <div class="form-group">
+      <label>Participant ID</label>
+      <input type="text" id="pid" class="input-text" value="P001" required autocomplete="off">
+    </div>
 
-  <label>Group</label>
-  <div class="radio-group">
-    <label><input type="radio" name="group" value="B" checked> Group B — Active Recall</label>
-    <label><input type="radio" name="group" value="A"> Group A — Control</label>
-  </div>
+    <div class="form-group">
+      <label>Group</label>
+      <div class="toggle-group" id="groupToggle" data-active="B">
+        <div class="toggle-slider"></div>
+        <div class="toggle-btn" onclick="setGroup('A')">A: Passive</div>
+        <div class="toggle-btn active" onclick="setGroup('B')">B: Active</div>
+      </div>
+    </div>
 
-  <div class="row">
-    <div><label for="day">Day</label>
-      <select id="day">
-        <option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option>
-        <option value="4">Day 4</option><option value="5">Day 5</option><option value="6">Day 6</option>
-        <option value="7">Day 7</option><option value="8">Day 8</option><option value="9">Day 9</option>
-        <option value="10">Day 10</option><option value="11">Day 11</option><option value="12">Day 12</option>
-      </select></div>
-    <div><label for="mode">Mode</label>
-      <select id="mode">
-        <option value="practice">Practice (10 Qs)</option>
-        <option value="pretest">Pre-test (30 Qs)</option>
-        <option value="posttest">Post-test (30 Qs)</option>
-      </select></div>
-  </div>
+    <div style="display:flex; gap:16px;">
+      <div class="form-group" style="flex:1;">
+        <label>Day</label>
+        <select id="day" class="select-css">
+          <option value="1">Day 1</option>
+          <option value="2">Day 2</option>
+          <option value="3">Day 3</option>
+          <option value="4">Day 4</option>
+          <option value="5">Day 5</option>
+          <option value="6">Day 6</option>
+          <option value="7">Day 7</option>
+          <option value="8">Day 8</option>
+          <option value="9">Day 9</option>
+          <option value="10">Day 10</option>
+          <option value="11">Day 11</option>
+          <option value="12">Day 12</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>Mode</label>
+        <select id="mode" class="select-css" onchange="updatePreview()">
+          <option value="practice">Practice (10Q)</option>
+          <option value="pretest">Pre-test (30Q)</option>
+          <option value="posttest">Post-test (30Q)</option>
+        </select>
+      </div>
+    </div>
 
-  <button class="btn btnPrimary" onclick="start()">Start Session →</button>
+    <button type="submit" class="btn-start" id="startBtn">INITIALIZE SESSION</button>
+  </form>
 
-  <div class="info">
-    <strong>Group B:</strong> Wrong answer → speak the explanation into mic → AI checks pronunciation.<br>
-    <strong>Group A:</strong> Wrong answer → read the explanation.<br>
-    <strong>Requirements:</strong> Chrome/Edge + microphone for Group B.
+  <div class="info-wrap">
+    <div class="info-toggle" onclick="toggleInfo()">
+      <span>ℹ️ Session Details</span>
+      <span id="infoArrow">▼</span>
+    </div>
+    <div class="info-content" id="infoContent">
+      <div class="info-box" id="infoText">
+        <b>Group B (Active):</b> You will use your voice to complete sentences. Requires microphone access.<br><br>
+        10 Grammar questions per day. Read the instructions carefully.
+      </div>
+    </div>
   </div>
 </div>
 
+<div class="browser-warn" id="browserWarn">
+  ⚠️ For the best voice recognition experience, please use <b>Google Chrome</b> or <b>Microsoft Edge</b>.
+</div>
+
 <script>
-function start(){
-  const pid = document.getElementById('pid').value.trim()||'P001';
-  const group = document.querySelector('input[name="group"]:checked').value;
-  const day = document.getElementById('day').value;
-  const mode = document.getElementById('mode').value;
-  if(mode==='pretest'||mode==='posttest'){
-    window.location.href=`/static/test.html?pid=${pid}&group=${group}&day=${day}&mode=${mode}`;
-  } else {
-    window.location.href=`/static/game.html?pid=${pid}&group=${group}&day=${day}`;
+// Particles
+const pContainer = document.getElementById('particles');
+for(let i=0; i<30; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+  p.style.animationDelay = (Math.random() * 5) + 's';
+  pContainer.appendChild(p);
+}
+
+// Browser Check
+const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+const isEdge = /Edg/.test(navigator.userAgent);
+if (!isChrome && !isEdge) {
+  document.getElementById('browserWarn').style.display = 'block';
+}
+
+// Quick Resume
+let lastSession = null;
+try {
+  const data = localStorage.getItem('toeic_last_session');
+  if (data) {
+    lastSession = JSON.parse(data);
+    // Only show resume if it's been less than 24h
+    if (Date.now() - lastSession.timestamp < 86400000 && lastSession.day <= 12) {
+      const btn = document.getElementById('resumeBtn');
+      btn.textContent = `CONTINUE DAY ${lastSession.day} ➔`;
+      btn.style.display = 'block';
+      
+      // Pre-fill form
+      document.getElementById('pid').value = lastSession.pid;
+      setGroup(lastSession.group);
+      document.getElementById('day').value = lastSession.day;
+    }
+  }
+} catch(e) {}
+
+function resumeSession() {
+  if (lastSession) {
+    const url = `/static/game.html?pid=${lastSession.pid}&group=${lastSession.group}&day=${lastSession.day}`;
+    window.location.href = url;
   }
 }
+
+// Form Logic
+let currentGroup = 'B';
+function setGroup(val) {
+  currentGroup = val;
+  const toggle = document.getElementById('groupToggle');
+  toggle.setAttribute('data-active', val);
+  const btns = toggle.querySelectorAll('.toggle-btn');
+  btns[0].classList.toggle('active', val === 'A');
+  btns[1].classList.toggle('active', val === 'B');
+  updatePreview();
+}
+
+function updatePreview() {
+  const mode = document.getElementById('mode').value;
+  const text = document.getElementById('infoText');
+  if (mode === 'practice') {
+    text.innerHTML = currentGroup === 'B' 
+      ? "<b>Group B (Active):</b> Voice-based battle system. Complete 10 questions to defeat the boss."
+      : "<span>Group A (Passive):</span> Standard multiple choice format. 10 questions with detailed explanations.";
+  } else {
+    text.innerHTML = `<b>${mode === 'pretest' ? 'Pre-test' : 'Post-test'} (30Q):</b> Standard assessment mode. Answer all 30 questions sequentially. No voice required.`;
+  }
+}
+
+function toggleInfo() {
+  const content = document.getElementById('infoContent');
+  const arrow = document.getElementById('infoArrow');
+  const isOpen = content.classList.contains('open');
+  content.classList.toggle('open', !isOpen);
+  arrow.textContent = isOpen ? '▼' : '▲';
+}
+
+function handleStart(e) {
+  e.preventDefault();
+  const pid = document.getElementById('pid').value.trim() || 'P001';
+  const day = document.getElementById('day').value;
+  const mode = document.getElementById('mode').value;
+  
+  if (mode === 'practice') {
+    window.location.href = `/static/game.html?pid=${pid}&group=${currentGroup}&day=${day}`;
+  } else {
+    window.location.href = `/static/test.html?pid=${pid}&group=${currentGroup}&day=${day}&mode=${mode}`;
+  }
+}
+
+updatePreview();
 </script>
 </body>
 </html>

@@ -2,292 +2,483 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TOEIC Test — Pilot Study</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TOEIC Pilot — Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --primary: #4f46e5; --success: #10b981;
-          --danger: #ef4444; --warn: #f59e0b; --border: #334155; --muted: #94a3b8; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
-         min-height: 100vh; }
-  /* ── Sticky Header ── */
-  #header { position: sticky; top: 0; z-index: 100; background: var(--card);
-            border-bottom: 1px solid var(--border); padding: 10px 18px; }
-  #header-inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
-  #progress-dots { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
-  .dot { width: 22px; height: 22px; border-radius: 4px; border: 2px solid var(--border);
-         display: flex; align-items: center; justify-content: center; font-size: 0.6rem;
-         cursor: default; transition: all 0.2s; background: #0f172a; color: var(--muted); }
-  .dot.done { border-color: var(--success); background: #064e3b; color: #6ee7b7; cursor: pointer; }
-  .dot.current { border-color: var(--primary); background: #312e81; color: #a5b4fc; }
-  .dot.locked { opacity: 0.4; }
-  #header-stats { font-size: 0.85rem; color: var(--muted); white-space: nowrap; min-width: 80px; text-align: right; }
-  #timer { font-size: 0.85rem; color: var(--warn); min-width: 65px; text-align: right; }
-  /* ── Main ── */
-  #main { max-width: 760px; margin: 0 auto; padding: 16px; }
-  /* ── Question Card ── */
-  .q-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 14px;
-            border: 2px solid var(--border); transition: border 0.3s, opacity 0.3s; position: relative; }
-  .q-card.active { border-color: var(--primary); }
-  .q-card.done { border-color: var(--success); }
-  .q-card.locked { opacity: 0.45; pointer-events: none; }
-  .q-card.locked::after { content: "🔒 Complete previous question first"; position: absolute;
-    top: 50%; left: 50%; transform: translate(-50%,-50%); color: var(--muted); font-size: 0.9rem;
-    background: var(--card); padding: 8px 16px; border-radius: 8px; white-space: nowrap; }
-  .q-num { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
-  .q-num .badge { font-size: 0.7rem; background: #064e3b; color: #6ee7b7; padding: 2px 7px;
-                  border-radius: 10px; margin-left: 8px; display: none; }
-  .q-card.done .badge { display: inline; }
-  .q-stem { font-size: 1.1rem; line-height: 1.65; margin-bottom: 14px; color: #fff; }
-  /* Options */
-  .q-opts { display: flex; flex-direction: column; gap: 6px; }
-  .opt-label { display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-               border-radius: 8px; border: 2px solid var(--border); background: #0f172a;
-               cursor: pointer; transition: all 0.15s; font-size: 1rem; }
-  .opt-label:hover { border-color: var(--primary); background: #1e293b; }
-  .opt-label input[type=radio] { accent-color: var(--primary); width: 16px; height: 16px; }
-  .opt-label.selected { border-color: var(--primary); background: #312e81; }
-  .q-card.submitted .opt-label { pointer-events: none; opacity: 0.7; }
-  .q-card.submitted .opt-label.correct-ans { border-color: var(--success); background: #064e3b; opacity: 1; }
-  .q-card.submitted .opt-label.wrong-ans { border-color: var(--danger); background: #450a0a; opacity: 1; }
-  .result-icon { display: none; position: absolute; top: 16px; right: 16px; font-size: 1.3rem; }
-  .q-card.submitted .result-icon { display: block; }
-  /* Submit */
-  #submit-wrap { text-align: center; padding: 16px 0 40px; }
-  #submit-btn { padding: 14px 40px; border-radius: 10px; border: none; background: var(--success);
-                color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; opacity: 0.5; }
-  #submit-btn.enabled { opacity: 1; }
-  #submit-btn.enabled:hover { background: #059669; }
-  /* Score Modal */
-  #score-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                 background: rgba(0,0,0,0.7); z-index: 200; justify-content: center; align-items: center; }
-  #score-modal.show { display: flex; }
-  #score-card { background: var(--card); border-radius: 16px; padding: 32px; text-align: center;
-                max-width: 400px; width: 90%; }
-  #score-card .big { font-size: 3.5rem; font-weight: 900; color: var(--success); }
-  #score-card h2 { margin-bottom: 8px; }
-  #score-card button { margin-top: 16px; padding: 12px 28px; border-radius: 8px; border: none;
-                       background: var(--primary); color: white; font-size: 1rem; cursor: pointer; }
-  /* Mobile jump */
-  #jump-btn { position: fixed; bottom: 20px; right: 20px; z-index: 150; padding: 12px 18px;
-              border-radius: 50px; border: none; background: var(--primary); color: white;
-              font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.5); display: none; }
-  @media (max-width: 480px) {
-    #jump-btn { display: block; }
-    .dot { width: 18px; height: 18px; font-size: 0.5rem; }
-    .q-stem { font-size: 1rem; }
-    .opt-label { font-size: 0.95rem; padding: 10px 12px; }
-  }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --glass: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --accent: #7c6af7;
+  --accent-dim: rgba(124,106,247,0.15);
+  --accent-glow: rgba(124,106,247,0.25);
+  --success: #22c55e;
+  --success-dim: rgba(34,197,94,0.15);
+  --danger: #ef4444;
+  --danger-dim: rgba(239,68,68,0.15);
+  --warning: #f59e0b;
+  --info: #06b6d4;
+  
+  --text: #f0f0f5;
+  --text2: #8888a0;
+  
+  --font: 'Inter', system-ui, sans-serif;
+  --font-d: 'Orbitron', monospace;
+  --font-m: 'JetBrains Mono', monospace;
+  
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh; min-height: 100dvh;
+  background: var(--bg);
+  font-family: var(--font);
+  color: var(--text);
+  overflow: hidden; /* Prevent body scroll, manage in container */
+  display: flex; flex-direction: column;
+}
+
+/* Header */
+.header {
+  padding: 16px 20px;
+  background: rgba(10,10,15,0.8);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 10;
+}
+.title { font-family: var(--font-d); font-weight: 700; letter-spacing: 2px; font-size: 1rem; color: var(--text); }
+.title span { color: var(--accent); }
+.timer {
+  font-family: var(--font-m); font-size: 1.1rem;
+  color: var(--info); font-weight: 600;
+  text-shadow: 0 0 10px rgba(6,182,212,0.4);
+}
+.timer.warn { color: var(--warning); text-shadow: 0 0 10px rgba(245,158,11,0.4); }
+.timer.danger { color: var(--danger); text-shadow: 0 0 10px rgba(239,68,68,0.4); }
+
+/* Progress Bar */
+.progress-wrap { padding: 0 20px; margin-top: 10px; }
+.progress-bg {
+  height: 6px; background: rgba(255,255,255,0.05);
+  border-radius: 6px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--info), var(--accent));
+  transition: width 0.3s var(--ease);
+}
+.progress-text {
+  font-family: var(--font-m); font-size: 0.65rem; color: var(--text2);
+  text-align: right; margin-top: 4px; letter-spacing: 1px;
+}
+
+/* Main Container */
+.main { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+.carousel {
+  position: relative; width: 100%; max-width: 600px; height: 100%;
+  overflow: hidden; padding: 20px; display: flex; align-items: center;
+}
+
+/* Card */
+.card {
+  position: absolute; left: 20px; right: 20px;
+  background: var(--glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  transition: transform 0.4s var(--ease), opacity 0.4s var(--ease);
+  opacity: 0; pointer-events: none; transform: translateX(50px);
+}
+.card.active { opacity: 1; pointer-events: auto; transform: translateX(0); z-index: 2; }
+.card.prev { transform: translateX(-50px); }
+.card.next { transform: translateX(50px); }
+
+.q-num {
+  font-family: var(--font-d); font-size: 0.7rem; color: var(--accent);
+  letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase;
+}
+.q-stem { font-size: 1.1rem; line-height: 1.7; margin-bottom: 24px; color: var(--text); }
+.q-stem b { color: var(--accent); }
+
+/* Options */
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px; background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text); font-size: 0.95rem; cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.opt:hover:not(.locked) {
+  background: rgba(124,106,247,0.1); border-color: var(--accent);
+  transform: translateX(4px);
+}
+.opt.selected { background: var(--accent-dim); border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+.opt-key {
+  background: rgba(255,255,255,0.06); padding: 4px 12px;
+  border-radius: 8px; font-family: var(--font-m); font-size: 0.75rem;
+  color: var(--text2);
+}
+.opt.selected .opt-key { background: var(--accent); color: #fff; }
+
+/* Review Mode Colors */
+.opt.correct-ans { background: var(--success-dim); border-color: var(--success); }
+.opt.correct-ans .opt-key { background: var(--success); color: #000; }
+.opt.wrong-ans { background: var(--danger-dim); border-color: var(--danger); }
+.opt.wrong-ans .opt-key { background: var(--danger); color: #000; }
+
+.explain {
+  display: none; margin-top: 16px; padding: 12px;
+  background: rgba(6,182,212,0.1); border-left: 2px solid var(--info);
+  border-radius: 0 8px 8px 0; font-size: 0.85rem; color: var(--text2); line-height: 1.6;
+}
+
+/* Navigation */
+.nav-btns {
+  display: flex; justify-content: space-between;
+  width: 100%; max-width: 600px; padding: 0 20px 20px;
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 5;
+}
+.nav-btn {
+  width: 44px; height: 44px;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 50%; color: var(--text); font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; backdrop-filter: blur(10px);
+}
+.nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: #fff; }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* Submit Button */
+.submit-fab {
+  position: fixed; bottom: 20px; right: 20px; z-index: 20;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--accent), #9b8fff);
+  border: none; border-radius: 30px;
+  color: #fff; font-family: var(--font-d); font-size: 0.9rem; letter-spacing: 2px;
+  box-shadow: 0 4px 20px var(--accent-glow);
+  cursor: pointer; display: none;
+  animation: pulseFab 2s infinite, slideUp 0.4s var(--ease);
+}
+@keyframes pulseFab { 0%,100%{box-shadow:0 4px 20px var(--accent-glow);} 50%{box-shadow:0 4px 40px rgba(124,106,247,0.6);} }
+@keyframes slideUp { from{transform:translateY(100px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+/* Score Modal */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+  z-index: 100; display: none; justify-content: center; align-items: center;
+}
+.modal {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 24px; padding: 40px; width: 90%; max-width: 400px;
+  text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: popIn 0.5s var(--ease);
+}
+@keyframes popIn { from{transform:scale(0.8);opacity:0;} to{transform:scale(1);opacity:1;} }
+.score-circle {
+  width: 120px; height: 120px; margin: 0 auto 20px;
+  border-radius: 50%; border: 4px solid var(--accent);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 0 30px var(--accent-glow);
+}
+.score-val { font-family: var(--font-d); font-size: 2.5rem; font-weight: 900; color: #fff; }
+.score-tot { font-family: var(--font-m); font-size: 0.9rem; color: var(--text2); }
+.modal-title { font-family: var(--font-d); font-size: 1.2rem; color: var(--text); margin-bottom: 8px; }
+.modal-btn {
+  width: 100%; padding: 14px; margin-top: 24px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--text); font-family: var(--font-d); letter-spacing: 1px;
+  cursor: pointer; transition: all 0.2s;
+}
+.modal-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+.loading { font-family: var(--font-m); text-align: center; width: 100%; color: var(--text2); }
+
+@media (max-width: 600px) {
+  .card { padding: 20px 16px; left: 16px; right: 16px; }
+  .nav-btns { padding: 0 16px 20px; }
+  .q-stem { font-size: 1rem; }
+}
 </style>
 </head>
 <body>
 
-<div id="header">
-  <div id="header-inner">
-    <div id="progress-dots"></div>
-    <span id="header-stats">0/30</span>
-    <span id="timer">⏱ <span id="time">00:00</span></span>
+<div class="header">
+  <div class="title">TOEIC <span>PILOT</span></div>
+  <div class="timer" id="timer">00:00</div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bg"><div class="progress-fill" id="pgFill"></div></div>
+  <div class="progress-text"><span id="pgText">0</span> / 30</div>
+</div>
+
+<div class="main">
+  <div class="carousel" id="carousel">
+    <div class="loading" id="loading">Loading assessment...</div>
+  </div>
+  
+  <div class="nav-btns" id="navBtns" style="display:none;">
+    <button class="nav-btn" id="btnPrev" onclick="nav(-1)">❮</button>
+    <button class="nav-btn" id="btnNext" onclick="nav(1)" disabled>❯</button>
   </div>
 </div>
 
-<div id="main"></div>
+<button class="submit-fab" id="submitBtn" onclick="submitTest()">SUBMIT TEST</button>
 
-<div id="submit-wrap"><button id="submit-btn" disabled>Submit Test (0/30)</button></div>
-
-<div id="score-modal"><div id="score-card">
-  <h2>Test Complete</h2>
-  <div class="big" id="final-score">0</div>
-  <p style="color:var(--muted)">out of 30</p>
-  <div id="score-detail" style="font-size:0.9rem;color:var(--muted);margin-top:8px;"></div>
-  <button onclick="closeModal()">Review Answers</button>
-</div></div>
-
-<button id="jump-btn" onclick="jumpToCurrent()">📍 Go to Q<span id="jump-num">1</span></button>
+<div class="modal-bg" id="scoreModal">
+  <div class="modal">
+    <div class="score-circle">
+      <div class="score-val" id="scoreVal">0</div>
+      <div class="score-tot">/ 30</div>
+    </div>
+    <div class="modal-title">Assessment Complete</div>
+    <div style="font-size:0.85rem; color:var(--text2);">Data has been saved.</div>
+    <button class="modal-btn" onclick="reviewMode()">REVIEW ANSWERS</button>
+    <button class="modal-btn" onclick="window.location.href='/static/index.html'" style="margin-top:10px;">FINISH</button>
+  </div>
+</div>
 
 <script>
-const STATE = {
-  pid: new URLSearchParams(location.search).get("pid") || "P001",
-  group: new URLSearchParams(location.search).get("group") || "B",
-  mode: new URLSearchParams(location.search).get("mode") || "pretest",
-  questions: [],
-  answers: {},       // question_idx → selected_option_idx
+const S = {
+  pid: new URLSearchParams(window.location.search).get('pid') || 'P001',
+  group: new URLSearchParams(window.location.search).get('group') || 'B',
+  day: new URLSearchParams(window.location.search).get('day') || 1,
+  mode: new URLSearchParams(window.location.search).get('mode') || 'pretest',
+  qs: [],
+  answers: [],
+  idx: 0,
+  maxIdx: 0, // highest unlocked
   startTime: Date.now(),
-  submitted: false,
+  timerInt: null,
+  isReview: false
 };
 
+const letters = ['A','B','C','D'];
+
 async function init() {
-  const res = await fetch(`/api/questions?set=${STATE.mode}`);
-  STATE.questions = await res.json();
-  buildProgress();
-  buildCards();
-  updateTimer();
-  setInterval(updateTimer, 5000);
-}
-
-function buildProgress() {
-  const dots = document.getElementById("progress-dots");
-  dots.innerHTML = STATE.questions.map((_, i) =>
-    `<div class="dot locked" id="dot-${i}" title="Q${i+1}">${i+1}</div>`
-  ).join("");
-  updateProgress();
-}
-
-function updateProgress() {
-  const answered = Object.keys(STATE.answers).length;
-  const firstUnanswered = STATE.questions.findIndex((_, i) => !(i in STATE.answers));
-  document.getElementById("header-stats").textContent = `${answered}/${STATE.questions.length}`;
-
-  STATE.questions.forEach((_, i) => {
-    const dot = document.getElementById(`dot-${i}`);
-    dot.classList.remove("done", "current", "locked");
-    if (i in STATE.answers) {
-      dot.classList.add("done");
-      dot.onclick = () => scrollToCard(i);
-    } else if (i === firstUnanswered || (i === 0 && answered === 0)) {
-      dot.classList.add("current");
-    } else {
-      dot.classList.add("locked");
-    }
-  });
-}
-
-function buildCards() {
-  const main = document.getElementById("main");
-  main.innerHTML = STATE.questions.map((q, i) => `
-    <div class="q-card ${i === 0 ? 'active' : 'locked'}" id="card-${i}">
-      <span class="result-icon" id="icon-${i}"></span>
-      <div class="q-num">Question ${i+1} <span class="badge" id="badge-${i}">✓ Answered</span></div>
-      <div class="q-stem">${q.stem}</div>
-      <div class="q-opts">
-        ${q.options.map((opt, oi) => `
-          <label class="opt-label" id="opt-${i}-${oi}">
-            <input type="radio" name="q${i}" value="${oi}" onchange="selectAnswer(${i}, ${oi})">
-            ${["A","B","C","D"][oi]}. ${opt}
-          </label>
-        `).join("")}
-      </div>
-    </div>
-  `).join("");
-}
-
-function selectAnswer(qIdx, optIdx) {
-  if (STATE.submitted) return;
-  const wasAnswered = qIdx in STATE.answers;
-  STATE.answers[qIdx] = optIdx;
-
-  // Highlight selected
-  STATE.questions[qIdx].options.forEach((_, oi) => {
-    const label = document.getElementById(`opt-${qIdx}-${oi}`);
-    label.classList.toggle("selected", oi === optIdx);
-  });
-
-  // Mark card done
-  const card = document.getElementById(`card-${qIdx}`);
-  card.classList.add("done");
-  card.classList.remove("active", "locked");
-
-  // Unlock next card
-  if (qIdx + 1 < STATE.questions.length) {
-    const nextCard = document.getElementById(`card-${qIdx+1}`);
-    nextCard.classList.remove("locked");
-    nextCard.classList.add("active");
+  document.getElementById('timer').classList.toggle('warn', S.mode === 'pretest');
+  document.title = `TOEIC Pilot — ${S.mode.toUpperCase()}`;
+  
+  try {
+    const r = await fetch('/api/questions?day=' + S.day + '&set=' + S.mode);
+    if (!r.ok) throw new Error('API Error');
+    S.qs = await r.json();
+    if(S.qs.length === 0) throw new Error('No questions');
+    
+    // Default 30 questions limit if API returns more
+    if(S.qs.length > 30) S.qs = S.qs.slice(0, 30);
+    S.answers = new Array(S.qs.length).fill(-1);
+    
+    renderCards();
+    updateUI();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('navBtns').style.display = 'flex';
+    
+    S.timerInt = setInterval(updateTimer, 1000);
+  } catch(e) {
+    document.getElementById('loading').textContent = 'Error loading questions.';
   }
-
-  updateProgress();
-  updateSubmitBtn();
-
-  // Scroll to next question after short delay
-  if (!wasAnswered && qIdx + 1 < STATE.questions.length) {
-    setTimeout(() => scrollToCard(qIdx + 1), 200);
-  }
-}
-
-function scrollToCard(idx) {
-  if (STATE.submitted) {
-    document.getElementById(`card-${idx}`).scrollIntoView({ behavior: "smooth", block: "center" });
-  } else if (idx in STATE.answers || idx === Object.keys(STATE.answers).length) {
-    document.getElementById(`card-${idx}`).scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-}
-
-function updateSubmitBtn() {
-  const answered = Object.keys(STATE.answers).length;
-  const total = STATE.questions.length;
-  const btn = document.getElementById("submit-btn");
-  btn.textContent = `Submit Test (${answered}/${total})`;
-  if (answered === total) {
-    btn.classList.add("enabled");
-    btn.disabled = false;
-  }
-}
-
-async function submitTest() {
-  const answered = Object.keys(STATE.answers).length;
-  if (answered < STATE.questions.length) return;
-
-  STATE.submitted = true;
-  let correct = 0;
-
-  STATE.questions.forEach((q, i) => {
-    const card = document.getElementById(`card-${i}`);
-    card.classList.add("submitted");
-    const chosen = STATE.answers[i];
-    const isCorrect = chosen === q.correct_idx;
-    if (isCorrect) correct++;
-
-    // Highlight options
-    q.options.forEach((_, oi) => {
-      const label = document.getElementById(`opt-${i}-${oi}`);
-      if (oi === q.correct_idx) label.classList.add("correct-ans");
-      if (oi === chosen && !isCorrect) label.classList.add("wrong-ans");
-    });
-
-    // Icon
-    const icon = document.getElementById(`icon-${i}`);
-    icon.textContent = isCorrect ? "✅" : "❌";
-  });
-
-  // Submit score
-  await fetch("/api/test/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      participant_id: STATE.pid,
-      group_type: STATE.group,
-      test_type: STATE.mode,
-      score: correct,
-      total: STATE.questions.length
-    })
-  });
-
-  // Show modal
-  document.getElementById("final-score").textContent = correct;
-  document.getElementById("score-detail").textContent =
-    `${correct}/${STATE.questions.length} correct (${Math.round(correct/STATE.questions.length*100)}%)`;
-  document.getElementById("score-modal").classList.add("show");
-  document.getElementById("submit-btn").style.display = "none";
-}
-
-function closeModal() {
-  document.getElementById("score-modal").classList.remove("show");
-}
-
-function jumpToCurrent() {
-  const firstUnanswered = STATE.questions.findIndex((_, i) => !(i in STATE.answers));
-  const target = firstUnanswered >= 0 ? firstUnanswered : 0;
-  scrollToCard(target);
-  document.getElementById("jump-num").textContent = target + 1;
 }
 
 function updateTimer() {
-  const elapsed = Math.floor((Date.now() - STATE.startTime) / 1000);
-  const m = Math.floor(elapsed / 60);
-  const s = elapsed % 60;
-  document.getElementById("time").textContent =
-    `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if (S.isReview) return;
+  const s = Math.floor((Date.now() - S.startTime) / 1000);
+  const m = Math.floor(s / 60);
+  const rs = s % 60;
+  const str = m.toString().padStart(2, '0') + ':' + rs.toString().padStart(2, '0');
+  const tEl = document.getElementById('timer');
+  tEl.textContent = str;
+  if(s > 600) tEl.className = 'timer warn';
+  if(s > 900) tEl.className = 'timer danger';
 }
 
-document.getElementById("submit-btn").addEventListener("click", submitTest);
+function renderCards() {
+  const container = document.getElementById('carousel');
+  S.qs.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = `card ${i === 0 ? 'active' : 'next'}`;
+    card.id = `card-${i}`;
+    
+    let optsHtml = '';
+    q.options.forEach((opt, optIdx) => {
+      optsHtml += `<div class="opt" onclick="selectOpt(${i}, ${optIdx})" id="opt-${i}-${optIdx}">
+        <span class="opt-key">${letters[optIdx]}</span>
+        <span>${String(opt).replace(/</g, '&lt;')}</span>
+      </div>`;
+    });
+
+    card.innerHTML = `
+      <div class="q-num">Question ${i+1}</div>
+      <div class="q-stem">${String(q.stem).replace(/(_{2,})/g, '<b>$1</b>')}</div>
+      <div class="opts">${optsHtml}</div>
+      <div class="explain" id="exp-${i}"><b>Analysis:</b> ${String(q.explanation).replace(/</g, '&lt;')}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectOpt(qIdx, optIdx) {
+  if (S.isReview) return;
+  if (qIdx > S.maxIdx) return; // locked
+  
+  // Unselect all in this card
+  for(let i=0; i<4; i++) {
+    const el = document.getElementById(`opt-${qIdx}-${i}`);
+    if(el) el.classList.remove('selected');
+  }
+  
+  // Select new
+  document.getElementById(`opt-${qIdx}-${optIdx}`).classList.add('selected');
+  S.answers[qIdx] = optIdx;
+  
+  // Unlock next
+  if (qIdx === S.maxIdx && S.maxIdx < S.qs.length - 1) {
+    S.maxIdx++;
+    setTimeout(() => nav(1), 300);
+  }
+  
+  checkSubmit();
+  updateUI();
+}
+
+function nav(dir) {
+  const newIdx = S.idx + dir;
+  if (newIdx < 0 || newIdx >= S.qs.length) return;
+  if (!S.isReview && newIdx > S.maxIdx) return; // locked
+  
+  const curCard = document.getElementById(`card-${S.idx}`);
+  const newCard = document.getElementById(`card-${newIdx}`);
+  
+  curCard.className = `card ${dir > 0 ? 'prev' : 'next'}`;
+  newCard.className = 'card active';
+  
+  S.idx = newIdx;
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById('btnPrev').disabled = (S.idx === 0);
+  document.getElementById('btnNext').disabled = (!S.isReview && S.idx >= S.maxIdx) || (S.idx === S.qs.length - 1);
+  
+  const answered = S.answers.filter(a => a !== -1).length;
+  document.getElementById('pgFill').style.width = (answered / S.qs.length * 100) + '%';
+  document.getElementById('pgText').textContent = answered;
+}
+
+function checkSubmit() {
+  const allDone = !S.answers.includes(-1);
+  const btn = document.getElementById('submitBtn');
+  btn.style.display = allDone ? 'block' : 'none';
+}
+
+async function submitTest() {
+  clearInterval(S.timerInt);
+  document.getElementById('submitBtn').style.display = 'none';
+  
+  let score = 0;
+  S.answers.forEach((ans, i) => {
+    if(ans === S.qs[i].correct_idx) score++;
+  });
+  
+  try {
+    await fetch('/api/test/submit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        participant_id: S.pid,
+        group_type: S.group,
+        test_type: S.mode,
+        score: score,
+        total: S.qs.length
+      })
+    });
+  } catch(e) {}
+  
+  animateScore(score);
+  document.getElementById('scoreModal').style.display = 'flex';
+}
+
+function animateScore(target) {
+  const el = document.getElementById('scoreVal');
+  let cur = 0;
+  const step = () => {
+    if (cur < target) {
+      cur++;
+      el.textContent = cur;
+      requestAnimationFrame(step);
+    } else {
+      el.textContent = target;
+    }
+  };
+  requestAnimationFrame(step);
+}
+
+function reviewMode() {
+  document.getElementById('scoreModal').style.display = 'none';
+  S.isReview = true;
+  S.maxIdx = S.qs.length - 1; // unlock all
+  S.idx = 0; // jump to first
+  
+  // Apply colors
+  S.qs.forEach((q, i) => {
+    const userAns = S.answers[i];
+    const keyAns = q.correct_idx;
+    
+    for(let j=0; j<4; j++) {
+      const opt = document.getElementById(`opt-${i}-${j}`);
+      if(opt) {
+        opt.classList.add('locked'); // disable hover
+        opt.classList.remove('selected');
+        if(j === keyAns) opt.classList.add('correct-ans');
+        else if(j === userAns) opt.classList.add('wrong-ans');
+      }
+    }
+    document.getElementById(`exp-${i}`).style.display = 'block';
+    
+    // Hide current card and jump to first
+    document.getElementById(`card-${i}`).className = `card next`;
+  });
+  
+  document.getElementById('card-0').className = 'card active';
+  updateUI();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (document.getElementById('scoreModal').style.display === 'flex') return;
+  
+  if (e.key === 'ArrowLeft') nav(-1);
+  if (e.key === 'ArrowRight') nav(1);
+  
+  if (!S.isReview) {
+    const kMap = {'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3};
+    const i = kMap[e.key.toLowerCase()];
+    if (i !== undefined) selectOpt(S.idx, i);
+    if (e.key === 'Enter' && document.getElementById('submitBtn').style.display === 'block') {
+      submitTest();
+    }
+  }
+});
+
+// Swipe support
+let ts = null;
+document.addEventListener('touchstart', e => { ts = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  if(!ts) return;
+  const te = e.changedTouches[0].clientX;
+  if(ts - te > 50) nav(1);
+  else if(te - ts > 50) nav(-1);
+  ts = null;
+});
+
 init();
 </script>
 </body>

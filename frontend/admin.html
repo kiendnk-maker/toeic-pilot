@@ -3,138 +3,281 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard — TOEIC Pilot</title>
+<title>TOEIC Pilot — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --primary: #4f46e5;
-          --success: #10b981; --danger: #ef4444; --warn: #f59e0b;
-          --border: #334155; --text-muted: #94a3b8; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
-         min-height: 100vh; padding: 20px; }
-  h1 { font-size: 1.4rem; margin-bottom: 6px; }
-  .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
-  .metric-card { background: var(--card); border-radius: 12px; padding: 18px; border: 1px solid var(--border); }
-  .metric-card h3 { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .metric-card .value { font-size: 1.8rem; font-weight: 900; }
-  .metric-card .criterion { font-size: 0.8rem; margin-top: 4px; }
-  .go { color: var(--success); }
-  .modify { color: var(--danger); }
-  .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
-  .btn-primary { background: var(--primary); color: white; margin-right: 8px; }
-  .btn-success { background: var(--success); color: white; }
-  #raw-data { background: var(--card); border-radius: 12px; padding: 18px; border: 1px solid var(--border);
-              max-height: 500px; overflow-y: auto; margin-top: 16px; display: none; }
-  pre { font-size: 0.78rem; color: var(--text-muted); white-space: pre-wrap; }
-  .section-title { font-size: 1rem; font-weight: 700; margin: 20px 0 12px; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 12px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.5px; }
-  #loading { color: var(--text-muted); padding: 20px 0; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --glass: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --accent: #7c6af7;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --info: #06b6d4;
+  --warning: #f59e0b;
+  
+  --text: #f0f0f5;
+  --text2: #8888a0;
+  
+  --font: 'Inter', system-ui, sans-serif;
+  --font-d: 'Orbitron', monospace;
+  --font-m: 'JetBrains Mono', monospace;
+  
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); font-family: var(--font); color: var(--text);
+  min-height: 100vh; padding: 20px;
+}
+
+.container { max-width: 1200px; margin: 0 auto; }
+
+/* Header */
+.header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+}
+.title-area h1 { font-family: var(--font-d); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 4px; }
+.title-area h1 span { color: var(--accent); }
+.status-area { text-align: right; }
+.last-refresh { font-family: var(--font-m); font-size: 0.8rem; color: var(--text2); margin-bottom: 8px; }
+.auto-refresh { font-size: 0.75rem; color: var(--info); display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.progress-bar { width: 100px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--info); width: 100%; transition: width 1s linear; }
+
+/* Actions */
+.actions { display: flex; gap: 12px; margin-bottom: 20px; }
+.btn {
+  padding: 10px 20px; background: var(--glass); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: var(--font-d); font-size: 0.75rem;
+  letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+.btn-primary { background: rgba(124,106,247,0.2); border-color: var(--accent); color: var(--accent); }
+.btn-primary:hover { background: rgba(124,106,247,0.3); box-shadow: 0 0 15px rgba(124,106,247,0.4); }
+
+/* Grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+
+/* Metric Card */
+.metric-card {
+  background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border); border-radius: 16px; padding: 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.metric-info { flex: 1; }
+.metric-title { font-size: 0.8rem; color: var(--text2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.metric-val { font-family: var(--font-d); font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+
+/* Pill */
+.pill {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  font-family: var(--font-d); font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+}
+.pill.go { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid rgba(34,197,94,0.4); box-shadow: 0 0 10px rgba(34,197,94,0.2); }
+.pill.modify { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.4); box-shadow: 0 0 10px rgba(239,68,68,0.2); }
+
+/* Ring */
+.ring-wrap { position: relative; width: 60px; height: 60px; margin-left: 20px; }
+.ring-svg { transform: rotate(-90deg); width: 60px; height: 60px; }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
+.ring-fill { fill: none; stroke: var(--text); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 157; stroke-dashoffset: 157; transition: stroke-dashoffset 1s var(--ease); }
+.ring-fill.go { stroke: var(--success); }
+.ring-fill.modify { stroke: var(--danger); }
+.ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-m); font-size: 0.75rem; color: var(--text2); }
+
+/* Tables */
+.data-section {
+  background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; margin-bottom: 30px; overflow-x: auto;
+}
+.section-title { font-family: var(--font-d); font-size: 1.1rem; margin-bottom: 16px; display: flex; justify-content: space-between; }
+.badge { background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-family: var(--font-m); }
+
+table { width: 100%; border-collapse: collapse; text-align: left; font-family: var(--font-m); font-size: 0.85rem; }
+th { padding: 12px 16px; color: var(--text2); border-bottom: 1px solid var(--border); font-weight: normal; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+tbody tr { transition: background 0.2s; }
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+.pass-yes { color: var(--success); }
+.pass-no { color: var(--danger); }
+
+.loading { text-align: center; padding: 40px; color: var(--text2); font-family: var(--font-m); }
+
 </style>
 </head>
 <body>
-<h1>📊 TOEIC Active Recall — Admin Dashboard</h1>
-<p class="subtitle">Feasibility metrics auto-computed from SQLite</p>
 
-<div style="margin-bottom:20px;">
-  <button class="btn btn-primary" onclick="loadMetrics()">🔄 Refresh Metrics</button>
-  <button class="btn btn-success" onclick="exportCSV()">📥 Export CSV</button>
+<div class="container">
+  <div class="header">
+    <div class="title-area">
+      <h1>ADMIN <span>DASHBOARD</span></h1>
+      <div style="color:var(--text2); font-size:0.85rem;">TOEIC Active Recall Pilot Study</div>
+    </div>
+    <div class="status-area">
+      <div class="last-refresh" id="lastRefresh">Last updated: --</div>
+      <div class="auto-refresh">
+        <span>Auto-refresh in <span id="countdown">30</span>s</span>
+        <div class="progress-bar"><div class="progress-fill" id="refreshFill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="fetchData()">↻ REFRESH NOW</button>
+    <button class="btn" onclick="exportCSV()">↓ EXPORT CSV</button>
+    <button class="btn" onclick="exportJSON()">{ } EXPORT JSON</button>
+  </div>
+
+  <div id="content">
+    <div class="loading">Loading data from server...</div>
+  </div>
 </div>
-
-<div class="grid" id="metrics-grid">
-  <div id="loading">Loading... click Refresh Metrics</div>
-</div>
-
-<div class="section-title">Recent Sessions</div>
-<div id="sessions-table"></div>
-
-<div class="section-title">Recent Attempts</div>
-<div id="attempts-table"></div>
-
-<div id="raw-data"><pre id="raw-json"></pre></div>
 
 <script>
-async function loadMetrics() {
+let fullData = null;
+let refreshTimer = 30;
+let intervalId = null;
+
+async function fetchData() {
+  document.getElementById('content').innerHTML = '<div class="loading">Refreshing data...</div>';
   try {
-    const [mRes, eRes] = await Promise.all([
+    const [metricsRes, exportRes] = await Promise.all([
       fetch('/api/admin/metrics'),
       fetch('/api/admin/export')
     ]);
-    const metrics = await mRes.json();
-    const data = await eRes.json();
-    renderMetrics(metrics);
-    renderSessions(data.sessions || []);
-    renderAttempts((data.attempts || []).slice(-30));
-  } catch (e) {
-    document.getElementById("metrics-grid").innerHTML =
-      `<div class="metric-card"><span style="color:var(--danger)">Error: ${e.message}</span></div>`;
+    
+    const metrics = await metricsRes.json();
+    fullData = await exportRes.json();
+    
+    render(metrics, fullData);
+    
+    document.getElementById('lastRefresh').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    resetTimer();
+  } catch(e) {
+    document.getElementById('content').innerHTML = `<div class="loading" style="color:var(--danger)">Error: ${e.message}</div>`;
   }
 }
 
-function renderMetrics(m) {
-  const items = [
-    { label: "Session Completion", value: (m.session_completion_rate * 100).toFixed(1) + "%", go: m.session_completion_go, criterion: "≥ 80%" },
-    { label: "Attrition Rate", value: (m.attrition_rate * 100).toFixed(1) + "%", go: m.attrition_go, criterion: "≤ 15%" },
-    { label: "Mean Latency", value: m.mean_latency_ms + " ms", go: m.latency_go, criterion: "< 200 ms" },
-    { label: "dB Gate Pass Rate", value: (m.db_pass_rate * 100).toFixed(1) + "%", go: m.db_pass_go, criterion: "≥ 85%" },
-    { label: "Cosine Score SD", value: m.cosine_sd.toFixed(4), go: m.cosine_go, criterion: "< 0.05" },
-    { label: "Bypass Rate", value: (m.bypass_rate * 100).toFixed(1) + "%", go: m.bypass_go, criterion: "≤ 20%" },
-  ];
+function resetTimer() {
+  refreshTimer = 30;
+  if(intervalId) clearInterval(intervalId);
+  intervalId = setInterval(() => {
+    refreshTimer--;
+    document.getElementById('countdown').textContent = refreshTimer;
+    document.getElementById('refreshFill').style.width = (refreshTimer / 30 * 100) + '%';
+    if(refreshTimer <= 0) fetchData();
+  }, 1000);
+}
 
-  document.getElementById("metrics-grid").innerHTML = items.map(item => `
+function createMetricCard(title, valStr, isPct, pctVal, isGo) {
+  const statusCls = isGo ? 'go' : 'modify';
+  const statusTxt = isGo ? 'GO' : 'MODIFY';
+  
+  let ringHtml = '';
+  if (isPct) {
+    const offset = 157 - (157 * pctVal);
+    ringHtml = `
+      <div class="ring-wrap">
+        <svg class="ring-svg"><circle class="ring-bg" cx="30" cy="30" r="25"></circle>
+        <circle class="ring-fill ${statusCls}" cx="30" cy="30" r="25" style="stroke-dashoffset:${offset}"></circle></svg>
+      </div>
+    `;
+  }
+
+  return `
     <div class="metric-card">
-      <h3>${item.label}</h3>
-      <div class="value" style="color:${item.go ? 'var(--success)' : 'var(--danger)'}">${item.value}</div>
-      <div class="criterion ${item.go ? 'go' : 'modify'}">${item.go ? '✅ GO' : '❌ MODIFY'} — criterion: ${item.criterion}</div>
+      <div class="metric-info">
+        <div class="metric-title">${title}</div>
+        <div class="metric-val">${valStr}</div>
+        <div class="pill ${statusCls}">${statusTxt}</div>
+      </div>
+      ${ringHtml}
     </div>
-  `).join("");
+  `;
 }
 
-function renderSessions(sessions) {
-  if (!sessions.length) {
-    document.getElementById("sessions-table").innerHTML = "<p style='color:var(--text-muted)'>No sessions yet.</p>";
-    return;
-  }
-  const rows = sessions.slice(-20).reverse().map(s =>
-    `<tr><td>${s.timestamp?.slice(0,19)||''}</td><td>${s.participant_id}</td><td>Day ${s.day}</td><td>${s.score}/${s.total}</td></tr>`
-  ).join("");
-  document.getElementById("sessions-table").innerHTML = `
-    <table><thead><tr><th>Time</th><th>PID</th><th>Day</th><th>Score</th></tr></thead><tbody>${rows}</tbody></table>`;
+function render(metrics, data) {
+  const g = metrics;
+  const html = `
+    <div class="grid">
+      ${createMetricCard('Session Completion', (g.session_completion_rate*100).toFixed(1)+'%', true, g.session_completion_rate, g.session_completion_go)}
+      ${createMetricCard('Attrition Rate', (g.attrition_rate*100).toFixed(1)+'%', true, g.attrition_rate, g.attrition_go)}
+      ${createMetricCard('Mean Latency', Math.round(g.mean_latency_ms)+' ms', false, 0, g.latency_go)}
+      ${createMetricCard('dB Gate Pass Rate', (g.db_pass_rate*100).toFixed(1)+'%', true, g.db_pass_rate, g.db_pass_go)}
+      ${createMetricCard('Cosine Score SD', g.cosine_sd.toFixed(3), false, 0, g.cosine_go)}
+      ${createMetricCard('Bypass Rate', (g.bypass_rate*100).toFixed(1)+'%', true, g.bypass_rate, g.bypass_go)}
+    </div>
+    
+    <div class="data-section">
+      <div class="section-title">Recent Sessions <span class="badge">${data.sessions.length} total</span></div>
+      <table>
+        <thead><tr><th>Time</th><th>PID</th><th>Day</th><th>Score</th></tr></thead>
+        <tbody>
+          ${data.sessions.slice(-20).reverse().map(s => `
+            <tr><td>${s.timestamp}</td><td>${s.participant_id}</td><td>${s.day}</td><td>${s.scores ? s.scores.score : '-'}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="data-section">
+      <div class="section-title">Recent Attempts <span class="badge">${data.attempts.length} total</span></div>
+      <table>
+        <thead><tr><th>Time</th><th>PID</th><th>QID</th><th>Att</th><th>dB Pass</th><th>Cosine</th><th>Pass</th><th>Latency</th></tr></thead>
+        <tbody>
+          ${data.attempts.slice(-30).reverse().map(a => `
+            <tr>
+              <td>${a.timestamp.split('.')[0]}</td>
+              <td>${a.participant_id}</td>
+              <td>${a.question_id}</td>
+              <td>${a.attempt_num}</td>
+              <td class="${a.db_pass?'pass-yes':'pass-no'}">${a.db_pass?'✓':'✗'}</td>
+              <td>${a.cosine_score.toFixed(3)}</td>
+              <td class="${a.passed?'pass-yes':'pass-no'}">${a.passed?'✓':'✗'}</td>
+              <td>${a.latency_ms}ms</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('content').innerHTML = html;
 }
 
-function renderAttempts(attempts) {
-  if (!attempts.length) {
-    document.getElementById("attempts-table").innerHTML = "<p style='color:var(--text-muted)'>No attempts yet.</p>";
-    return;
-  }
-  const rows = attempts.reverse().map(a =>
-    `<tr><td>${a.timestamp?.slice(0,19)||''}</td><td>${a.participant_id}</td><td>${a.question_id}</td>
-     <td>${a.db_pass?'✅':'❌'}</td><td>${a.cosine_score?.toFixed(2)||'-'}</td>
-     <td>${a.passed?'✅':'❌'}</td><td>${a.latency_ms}ms</td></tr>`
-  ).join("");
-  document.getElementById("attempts-table").innerHTML = `
-    <table><thead><tr><th>Time</th><th>PID</th><th>QID</th><th>dB</th><th>Cos</th><th>Pass</th><th>Latency</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-
-async function exportCSV() {
-  const res = await fetch('/api/admin/export');
-  const data = await res.json();
-  const att = data.attempts || [];
-  const header = "timestamp,participant_id,question_id,attempt_num,db_pass,stt_text,cosine_score,passed,bypass_used,latency_ms";
-  const rows = att.map(a =>
-    `"${a.timestamp||''}","${a.participant_id||''}","${a.question_id||''}",${a.attempt_num||0},${a.db_pass||0},"${(a.stt_text||'').replace(/"/g,'""')}",${a.cosine_score||0},${a.passed||0},${a.bypass_used||0},${a.latency_ms||0}`
-  );
-  const csv = header + "\n" + rows.join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "toeic_pilot_data.csv";
+function exportJSON() {
+  if(!fullData) return;
+  const str = JSON.stringify(fullData, null, 2);
+  const blob = new Blob([str], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `toeic_export_${new Date().toISOString().split('T')[0]}.json`;
   a.click();
 }
 
-// Auto-load on open
-loadMetrics();
+function exportCSV() {
+  if(!fullData || fullData.attempts.length === 0) return;
+  
+  const headers = Object.keys(fullData.attempts[0]).join(',');
+  const rows = fullData.attempts.map(a => Object.values(a).join(','));
+  const csv = headers + '\n' + rows.join('\n');
+  
+  const blob = new Blob([csv], {type: "text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `toeic_attempts_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+fetchData();
 </script>
 </body>
 </html>

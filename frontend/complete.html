@@ -2,82 +2,296 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Session Complete — TOEIC Pilot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>TOEIC Pilot — Session Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
-  :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --success: #10b981; --primary: #4f46e5; --text-muted: #94a3b8; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
-         min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-  .card { background: var(--card); border-radius: 16px; padding: 40px; max-width: 440px; width: 90%;
-          text-align: center; box-shadow: 0 4px 32px rgba(0,0,0,0.5); }
-  .emoji { font-size: 4rem; margin-bottom: 12px; }
-  h1 { font-size: 1.4rem; margin-bottom: 8px; }
-  .stats { display: flex; justify-content: center; gap: 24px; margin: 20px 0; }
-  .stat { text-align: center; }
-  .stat .num { font-size: 2rem; font-weight: 900; color: var(--success); }
-  .stat .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-  .btn { display: inline-block; padding: 12px 28px; border-radius: 10px; border: none;
-         font-size: 0.95rem; font-weight: 700; cursor: pointer; text-decoration: none;
-         background: var(--primary); color: white; margin-top: 16px; }
-  .info { font-size: 0.82rem; color: var(--text-muted); margin-top: 16px; line-height: 1.5; }
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --glass: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --accent: #7c6af7;
+  --accent-glow: rgba(124,106,247,0.4);
+  
+  --bronze: #cd7f32;
+  --silver: #c0c0c0;
+  --gold: #ffd700;
+  --diamond: #00ffff;
+  
+  --text: #f0f0f5;
+  --text2: #8888a0;
+  
+  --font: 'Inter', system-ui, sans-serif;
+  --font-d: 'Orbitron', monospace;
+  --font-m: 'JetBrains Mono', monospace;
+  
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh; min-height: 100dvh;
+  background: var(--bg); font-family: var(--font); color: var(--text);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden; padding: 20px;
+}
+canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+.container {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 440px;
+  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 24px;
+  padding: 30px 24px; text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  animation: slideUp 0.6s var(--ease);
+}
+@keyframes slideUp { from{transform:translateY(30px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+
+.badge-wrap { margin: -60px auto 20px; width: 100px; height: 100px; position: relative; }
+.badge {
+  width: 100%; height: 100%;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 40px; background: var(--bg2); border: 4px solid #fff;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.2);
+  animation: badgePop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes badgePop { 0%{transform:scale(0) rotate(-180deg);} 100%{transform:scale(1) rotate(0);} }
+
+.title { font-family: var(--font-d); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 4px; }
+.subtitle { font-size: 0.85rem; color: var(--text2); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Stats Grid */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.stat-card {
+  background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px 10px;
+}
+.stat-val { font-family: var(--font-d); font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.stat-lbl { font-size: 0.65rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+
+/* XP Breakdown */
+.xp-breakdown { text-align: left; margin-bottom: 24px; }
+.xp-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text2); margin-bottom: 8px; font-family: var(--font-d); }
+.xp-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: rgba(255,255,255,0.05); }
+.xp-fill-1 { background: var(--success); transition: width 1s var(--ease); width: 0; }
+.xp-fill-2 { background: var(--accent); transition: width 1s var(--ease) 0.5s; width: 0; }
+.xp-legend { display: flex; gap: 12px; margin-top: 8px; font-size: 0.65rem; color: var(--text2); font-family: var(--font-m); }
+.leg-item { display: flex; align-items: center; gap: 4px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* Progress Ring */
+.day-progress {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-bottom: 24px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 16px;
+}
+.ring-wrap { position: relative; width: 50px; height: 50px; }
+.ring-svg { transform: rotate(-90deg); width: 50px; height: 50px; }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 4; }
+.ring-fill { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 125; stroke-dashoffset: 125; transition: stroke-dashoffset 1s var(--ease) 0.5s; }
+.ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-d); font-size: 0.9rem; font-weight: 700; }
+.day-info { text-align: left; }
+.day-title { font-family: var(--font-d); font-size: 0.8rem; color: var(--text); }
+.day-sub { font-size: 0.7rem; color: var(--text2); }
+
+/* Next Button */
+.btn-next {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--accent), #9b8fff);
+  border: none; border-radius: 14px;
+  color: #fff; font-family: var(--font-d); font-size: 0.9rem;
+  font-weight: 700; letter-spacing: 2px;
+  cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,106,247,0.5); }
+
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="emoji" id="emoji">🎉</div>
-  <h1>Session Complete!</h1>
+
+<canvas id="confetti"></canvas>
+
+<div class="container">
+  <div class="badge-wrap">
+    <div class="badge" id="rankBadge">🏅</div>
+  </div>
+  
+  <h1 class="title" id="rankTitle">SESSION COMPLETE</h1>
+  <div class="subtitle" id="groupLbl">Group B · Active Recall</div>
+  
   <div class="stats">
-    <div class="stat">
-      <div class="num" id="final-score">0</div>
-      <div class="label">Score</div>
+    <div class="stat-card">
+      <div class="stat-val" id="valScore" data-target="0">0</div>
+      <div class="stat-lbl">Total XP</div>
     </div>
-    <div class="stat">
-      <div class="num" id="max-streak">0</div>
-      <div class="label">Max Streak</div>
-    </div>
-    <div class="stat">
-      <div class="num" id="correct-first">0</div>
-      <div class="label">1st Try</div>
+    <div class="stat-card">
+      <div class="stat-val" id="valStreak" data-target="0">0</div>
+      <div class="stat-lbl">Max Streak</div>
     </div>
   </div>
-  <p style="color:var(--text-muted);font-size:0.9rem;" id="msg"></p>
-  <a href="/static/index.html" class="btn">Next Session →</a>
-  <div class="info">
-    Your data has been logged for the pilot study.<br>
-    Please return tomorrow for your next daily session.
+  
+  <div class="xp-breakdown">
+    <div class="xp-header">
+      <span>XP BREAKDOWN</span>
+      <span>1ST TRY: <span id="firstTryCount">0</span>/10</span>
+    </div>
+    <div class="xp-bar">
+      <div class="xp-fill-1" id="xp1"></div>
+      <div class="xp-fill-2" id="xp2"></div>
+    </div>
+    <div class="xp-legend">
+      <div class="leg-item"><div class="dot" style="background:var(--success)"></div>Base (10/q)</div>
+      <div class="leg-item"><div class="dot" style="background:var(--accent)"></div>Bonus (Voice/Battle)</div>
+    </div>
   </div>
+  
+  <div class="day-progress">
+    <div class="ring-wrap">
+      <svg class="ring-svg"><circle class="ring-bg" cx="25" cy="25" r="20"></circle><circle class="ring-fill" id="dayRing" cx="25" cy="25" r="20"></circle></svg>
+      <div class="ring-text" id="dayText">1</div>
+    </div>
+    <div class="day-info">
+      <div class="day-title">PROGRAM PROGRESS</div>
+      <div class="day-sub" id="daySub">Day 1 of 12 Completed</div>
+    </div>
+  </div>
+  
+  <button class="btn-next" onclick="window.location.href='/static/index.html'">CONTINUE ➔</button>
 </div>
 
 <script>
-const params = new URLSearchParams(location.search);
-const score = parseInt(params.get("score")) || 0;
-const total = parseInt(params.get("total")) || 10;
-const streak = parseInt(params.get("streak")) || 0;
-const correct = parseInt(params.get("correct")) || 0;
-const group = params.get("group") || "B";
+const params = new URLSearchParams(window.location.search);
+const S = {
+  score: parseInt(params.get('score')) || 0,
+  streak: parseInt(params.get('streak')) || 0,
+  correct: parseInt(params.get('correct')) || 0,
+  group: params.get('group') || 'B',
+  day: parseInt(params.get('day')) || 1
+};
 
-document.getElementById("final-score").textContent = score;
-document.getElementById("max-streak").textContent = streak;
-document.getElementById("correct-first").textContent = correct;
-
-const emoji = document.getElementById("emoji");
-const msg = document.getElementById("msg");
-
-if (correct >= 8) {
-  emoji.textContent = "🏆";
-  msg.textContent = "Outstanding! You got most questions right on the first try.";
-} else if (correct >= 5) {
-  emoji.textContent = "👍";
-  msg.textContent = "Good progress! Keep practicing to improve.";
-} else {
-  emoji.textContent = "💪";
-  msg.textContent = "Keep going! The active recall method will help you improve over time.";
+function init() {
+  // Rank calculations
+  const pct = S.correct / 10;
+  let rankColor, badgeIcon, titleTxt;
+  let doConfetti = false;
+  
+  if (pct >= 0.9) { rankColor = 'var(--diamond)'; badgeIcon = '💎'; titleTxt = 'DIAMOND RANK'; doConfetti = true; }
+  else if (pct >= 0.7) { rankColor = 'var(--gold)'; badgeIcon = '🥇'; titleTxt = 'GOLD RANK'; doConfetti = true; }
+  else if (pct >= 0.4) { rankColor = 'var(--silver)'; badgeIcon = '🥈'; titleTxt = 'SILVER RANK'; }
+  else { rankColor = 'var(--bronze)'; badgeIcon = '🥉'; titleTxt = 'BRONZE RANK'; }
+  
+  const badge = document.getElementById('rankBadge');
+  badge.textContent = badgeIcon;
+  badge.style.borderColor = rankColor;
+  badge.style.boxShadow = `0 10px 20px rgba(0,0,0,0.5), inset 0 0 20px ${rankColor}, 0 0 40px ${rankColor}`;
+  
+  document.getElementById('rankTitle').textContent = titleTxt;
+  document.getElementById('rankTitle').style.color = rankColor;
+  document.getElementById('groupLbl').textContent = `Group ${S.group} · ${S.group === 'A' ? 'Passive Reading' : 'Active Recall'}`;
+  
+  // Set targets
+  document.getElementById('valScore').dataset.target = S.score;
+  document.getElementById('valStreak').dataset.target = S.streak;
+  document.getElementById('firstTryCount').textContent = S.correct;
+  
+  // Breakdown
+  const xpBase = S.correct * 10;
+  const xpBonus = Math.max(0, S.score - xpBase);
+  const xpMax = S.group === 'A' ? 100 : 150; // approximate max
+  
+  setTimeout(() => {
+    document.getElementById('xp1').style.width = (xpBase / xpMax * 100) + '%';
+    document.getElementById('xp2').style.width = (xpBonus / xpMax * 100) + '%';
+    
+    const ring = document.getElementById('dayRing');
+    const offset = 125 - (125 * (S.day / 12));
+    ring.style.strokeDashoffset = offset;
+  }, 100);
+  
+  document.getElementById('dayText').textContent = S.day;
+  document.getElementById('daySub').textContent = `Day ${S.day} of 12 Completed`;
+  
+  // Save next day
+  try {
+    const d = JSON.parse(localStorage.getItem('toeic_last_session'));
+    if (d) {
+      d.day = S.day + 1;
+      localStorage.setItem('toeic_last_session', JSON.stringify(d));
+    }
+  } catch(e){}
+  
+  animateCounters();
+  if (doConfetti) shootConfetti();
 }
 
-if (group === "A") {
-  msg.textContent += " (Control group — passive reading)";
+function animateCounters() {
+  document.querySelectorAll('.stat-val').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const dur = 1500;
+    const start = performance.now();
+    
+    const step = (t) => {
+      const p = Math.min((t - start) / dur, 1);
+      const easeOutQuart = 1 - Math.pow(1 - p, 4);
+      el.textContent = Math.floor(target * easeOutQuart);
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = target;
+    };
+    requestAnimationFrame(step);
+  });
 }
+
+// Confetti
+function shootConfetti() {
+  const cvs = document.getElementById('confetti');
+  const ctx = cvs.getContext('2d');
+  cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+  
+  const colors = ['#7c6af7', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4'];
+  const particles = [];
+  
+  for(let i=0; i<150; i++) {
+    particles.push({
+      x: cvs.width/2, y: cvs.height/2 + 50,
+      vx: (Math.random()-0.5) * 20,
+      vy: (Math.random()-1) * 20 - 5,
+      size: Math.random() * 10 + 5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * 360,
+      rotS: (Math.random()-0.5) * 10
+    });
+  }
+  
+  let frame;
+  function render() {
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    let active = false;
+    particles.forEach(p => {
+      p.vy += 0.5; // gravity
+      p.x += p.vx; p.y += p.vy;
+      p.rot += p.rotS;
+      if (p.y < cvs.height + 20) active = true;
+      
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+      ctx.restore();
+    });
+    if (active) frame = requestAnimationFrame(render);
+  }
+  render();
+  
+  window.addEventListener('resize', () => {
+    cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+  });
+}
+
+init();
 </script>
 </body>
 </html>
