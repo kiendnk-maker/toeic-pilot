@@ -10,6 +10,9 @@ import requests
 from sentence_transformers import SentenceTransformer, util
 import wave
 import struct
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ── Config ──
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
