@@ -1656,7 +1656,7 @@ async function submitAudio(blob) {
    ═══════════════════════════════════════════════════════════════ */
 async function submitP1(blob) {
   if (S.volMax < 10) {
-    showFb('🔇 Too quiet! Speak louder', 'fail');
+    showFb('🔇 Speak clearly into the mic', 'fail');
     $('recBtn').disabled = false;
     $('recLabel').textContent = 'VOICE ATTACK';
     return;
