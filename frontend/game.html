@@ -1770,7 +1770,7 @@ async function submitP2(blob) {
         setTimeout(() => showVictory(S.xpEarned), tier.isCritical ? 1000 : 700);
       }
     } else {
-      if (S.p2step === 2 && S.att2 >= 2) {
+      if (S.att2 >= 2) {
         showFb('✗ ' + pct + '% — AI Challenge Triggered!', 'fail');
         $('bypassBtnWrap').classList.add('show');
         setTimeout(triggerAIChallenge, 800);
@@ -1778,7 +1778,6 @@ async function submitP2(blob) {
         showFb('✗ ' + pct + '% — Need ≥' + (threshold*100) + '%. Try again', 'fail');
         $('recBtn').disabled = false;
         $('recLabel').textContent = 'VOICE ATTACK';
-        if (S.att2 >= 2) $('bypassBtnWrap').classList.add('show');
       }
     }
   } catch(e) {
