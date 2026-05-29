@@ -15,7 +15,8 @@ from database import (
     log_session, log_attempt, log_test_score,
     export_csv, get_feasibility_metrics,
 )
-from questions import router as questions_router
+from questions import router as questions_router, PRACTICE
+from llm_generator import generate_similar_question
 
 app = FastAPI(title="TOEIC Active Recall Pilot")
 
@@ -237,6 +238,40 @@ async def admin_export():
 async def admin_metrics():
     """Compute feasibility metrics from logged data. Admin endpoint — restrict in production."""
     return get_feasibility_metrics()
+
+
+# ── LLM Question Generation ──
+@app.post("/api/generate-question")
+async def gen_question(
+    question_id: str = Form(...),
+    lang: str = Form("tw"),
+):
+    """
+    Generate a similar TOEIC question using GPT-OSS-120B.
+    Returns a new question with explanation in the requested language.
+    """
+    # Find original question
+    original = None
+    for q in PRACTICE:
+        if q["id"] == question_id:
+            original = q
+            break
+
+    if not original:
+        return {"error": f"Question {question_id} not found"}
+
+    result = generate_similar_question(
+        original_stem=original["stem"],
+        original_explanation=original["explanation"],
+        original_options=original["options"],
+        correct_idx=original["correct_idx"],
+        lang=lang,
+    )
+
+    if not result:
+        return {"error": "LLM generation failed — please try again"}
+
+    return result
 
 
 # ── Health Check ──
