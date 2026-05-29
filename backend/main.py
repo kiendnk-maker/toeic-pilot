@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import uvicorn
 
-from pipeline import verify_audio
+from pipeline import verify_audio, check_similarity, COSINE_THRESHOLD, GROQ_API_KEY
 from database import (
     log_session, log_attempt, log_test_score,
     export_csv, get_feasibility_metrics,
