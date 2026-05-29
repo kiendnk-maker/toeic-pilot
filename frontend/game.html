@@ -1373,7 +1373,9 @@ function enterPhase2() {
   $('phaseLabel').className = 'phase-indicator p2';
   $('phaseDesc').textContent = 'Read the entire explanation to finish it';
   $('taskLabel').innerHTML = '📖 READ ALOUD';
-  $('taskText').innerHTML = '"' + highlightKeywords(S.q.explanation) + '"';
+  const sayIt = S.q.explanation.match(/Say it:\s*"([^"]+)"/);
+  const refText = sayIt ? sayIt[1] : S.q.explanation;
+  $('taskText').innerHTML = '"' + highlightKeywords(refText) + '"';
   $('feedback').className = 'feedback';
   $('feedback').textContent = '';
   $('sttHeard').textContent = '';
@@ -1420,7 +1422,7 @@ async function toggleRecord() {
 async function startRecord() {
   try {
     S.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    S.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    S.stream = await navigator.mediaDevices.getUserMedia({ audio: { autoGainControl: false, echoCancellation: false, noiseSuppression: false } });
     const src = S.ctx.createMediaStreamSource(S.stream);
     S.analyser = S.ctx.createAnalyser();
     S.analyser.fftSize = 256;
@@ -1488,8 +1490,8 @@ async function submitAudio(blob) {
    SUBMIT P1 — Sentence
    ═══════════════════════════════════════════════════════════════ */
 async function submitP1(blob) {
-  if (S.volMax < 60) {
-    showFb('🔇 Too quiet! Speak louder (≥60%)', 'fail');
+  if (S.volMax < 10) {
+    showFb('🔇 Too quiet! Speak louder', 'fail');
     $('recBtn').disabled = false;
     $('recLabel').textContent = 'VOICE ATTACK';
     return;
@@ -1540,8 +1542,8 @@ async function submitP1(blob) {
    SUBMIT P2 — Explanation
    ═══════════════════════════════════════════════════════════════ */
 async function submitP2(blob) {
-  if (S.volMax < 60) {
-    showFb('🔇 Too quiet! Speak louder (≥60%)', 'fail');
+  if (S.volMax < 10) {
+    showFb('🔇 Too quiet! Speak louder', 'fail');
     $('recBtn').disabled = false;
     $('recLabel').textContent = 'VOICE ATTACK';
     return;
@@ -1550,7 +1552,8 @@ async function submitP2(blob) {
   showFb('⏳ Verifying explanation…', 'loading');
   const fd = new FormData();
   fd.append('audio', blob, 'rec.webm');
-  fd.append('reference', S.q.explanation);
+  const sayIt = S.q.explanation.match(/Say it:\s*"([^"]+)"/);
+  fd.append('reference', sayIt ? sayIt[1] : S.q.explanation);
   fd.append('participant_id', S.pid);
   fd.append('question_id', S.q.id);
   fd.append('attempt_num', S.att2);
@@ -1620,7 +1623,8 @@ async function submitBypass() {
   showFb('⏳ Checking…', 'loading');
   const fd = new FormData();
   fd.append('text', t);
-  fd.append('reference', S.q.explanation);
+  const sayIt = S.q.explanation.match(/Say it:\s*"([^"]+)"/);
+  fd.append('reference', sayIt ? sayIt[1] : S.q.explanation);
   fd.append('participant_id', S.pid);
   fd.append('question_id', S.q.id);
   try {

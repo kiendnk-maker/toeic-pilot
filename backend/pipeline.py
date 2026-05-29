@@ -14,7 +14,7 @@ import struct
 # ── Config ──
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 GROQ_TRANSCRIPTION_URL = "https://api.groq.com/openai/v1/audio/transcriptions"
-DB_THRESHOLD = 60
+DB_THRESHOLD = 30
 COSINE_THRESHOLD = 0.70
 
 # ── Load models once at startup ──
